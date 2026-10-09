@@ -863,7 +863,7 @@ async function buildPlay(){
   $("sheet").innerHTML = arr(m.prompts).map((p,i) => `
     <li id="li${i}"><span class="num">${i+1}</span>
       <span class="q"><b id="p${i}">؟؟؟</b>
-      <input id="a${i}" data-i="${i}" maxlength="40" autocomplete="off" disabled aria-label="${esc(p)}"></span></li>`).join("");
+      <input id="a${i}" data-i="${i}" maxlength="40" autocomplete="off" autocorrect="off" enterkeyhint="${i<Q-1 ? "next" : "done"}" disabled aria-label="${esc(p)}"></span></li>`).join("");
   $("doneBtn").disabled = true;
   $("doneHint").textContent = "استعد… الحرف جاي";
   scrollTo({top:0});
@@ -928,11 +928,18 @@ $("sheet").addEventListener("input", e => {
   clearTimeout(S.saveT); S.saveT = setTimeout(save, 500);
   updateDone();
 });
+function goNext(i){
+  /* jump to the next empty box (wrapping around); if all are filled, go to خلصت */
+  for(let k=1;k<=Q;k++){
+    const j = (i+k) % Q, el = $("a"+j);
+    if(el && !el.disabled && !S.my[j].trim()){ el.focus({preventScroll:true}); el.scrollIntoView({block:"center", behavior:"smooth"}); return; }
+  }
+  const d = $("doneBtn"); if(!d.disabled){ document.activeElement && document.activeElement.blur(); d.scrollIntoView({block:"center", behavior:"smooth"}); }
+}
 $("sheet").addEventListener("keydown", e => {
-  if(e.key==="Enter" && e.target.dataset && e.target.dataset.i!=null){
+  if((e.key==="Enter" || e.keyCode===13) && e.target.dataset && e.target.dataset.i!=null){
     e.preventDefault();
-    const nx = $("a" + (+e.target.dataset.i + 1));
-    if(nx) nx.focus(); else if(!$("doneBtn").disabled) $("doneBtn").focus();
+    goNext(+e.target.dataset.i);
   }
 });
 function save(){
@@ -1183,7 +1190,15 @@ async function boot(){
     }
   });
   $("name").value = store.get("kz_name") || "";
-  const room = (QS.get("room")||"").toUpperCase();
+  let room = (QS.get("room")||"").toUpperCase();
+  /* Refreshing the page leaves the room (the TV screen stays in). Your score is kept if you join again. */
+  const nav = (performance.getEntriesByType && performance.getEntriesByType("navigation")[0]) || {};
+  if(room && !TV && nav.type === "reload"){
+    const pid = store.get("kz_pid_"+room), pp = `rooms/${room}/players/${pid}`;
+    if(pid) S.db.get(pp).then(p => { if(p) S.db.set(pp+"/online", false); }).catch(()=>{});
+    const u = new URL(location.href); u.searchParams.delete("room"); history.replaceState(null, "", u.toString());
+    room = "";
+  }
   if(TV && room){ enterTV(room); return; }
   show("home");
   if(room){
