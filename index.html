@@ -175,6 +175,26 @@ footer{margin-top:28px;text-align:center;font-size:.85rem;font-weight:700;color:
 .toast{position:fixed;inset-inline:16px;bottom:calc(18px + env(safe-area-inset-bottom,0px));margin:auto;max-width:420px;z-index:40;background:var(--ink);color:var(--table);border-radius:14px;padding:12px 16px;font-weight:800;text-align:center;box-shadow:4px 4px 0 rgba(0,0,0,.3);animation:popin .3s cubic-bezier(.3,1.6,.6,1)}
 @media (max-width:380px){.letter{width:92px;font-size:4rem}.ring{width:80px;height:80px}.ans{grid-template-columns:auto minmax(0,4.5rem) 1fr auto}}
 
+/* final podium */
+.podium{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;align-items:end;padding-top:24px}
+.pod{display:flex;flex-direction:column;align-items:center;gap:6px;min-width:0;text-align:center}
+.pod .nm{font-weight:800;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pod .pts{font-weight:800;font-variant-numeric:tabular-nums;color:var(--ink-2)}
+.pod .block{width:100%;border:var(--line);border-bottom-width:3px;border-radius:14px 14px 4px 4px;box-shadow:var(--shadow);display:grid;place-items:center;font-family:var(--display);font-size:2.2rem;color:var(--ink);transform-origin:bottom;animation:rise .7s cubic-bezier(.3,1.4,.5,1) both}
+.pod.p1 .block{height:150px;background:var(--table);animation-delay:.6s}
+.pod.p2 .block{height:110px;background:#E6E9F2;animation-delay:.3s}
+.pod.p3 .block{height:80px;background:#F2C9A0}
+.pod.p1 .av{animation:bob 2s ease-in-out infinite}
+.pod.empty{visibility:hidden}
+@keyframes rise{from{transform:scaleY(0)}}
+body.tv .podium{gap:2vw;padding:0 3vw}
+body.tv .pod .av{--s:12vh;border-width:4px}
+body.tv .podium{padding-top:6vh}
+body.tv .pod .nm{font-size:1.5em}
+body.tv .pod .pts{font-size:1.3em}
+body.tv .pod .block{font-size:4em;border-width:4px}
+body.tv .pod.p1 .block{height:30vh} body.tv .pod.p2 .block{height:21vh} body.tv .pod.p3 .block{height:14vh}
+
 /* ================= TV / big screen ================= */
 body.tv{font-size:clamp(14px,1.2vw,26px);overflow:hidden}
 body.tv .wrap{max-width:none;height:100vh;padding:2.2vh 2.4vw;display:flex;flex-direction:column}
@@ -194,7 +214,7 @@ body.tv footer{display:none}
 .tvcode{font:800 6em/1 var(--body);letter-spacing:.16em;direction:ltr;text-align:right}
 .tvurl{font-weight:700;direction:ltr;text-align:right;color:var(--ink-2);font-size:1em;overflow-wrap:anywhere}
 .tvppl{display:grid;grid-template-columns:repeat(auto-fill,minmax(7em,1fr));gap:2vh 1vw;align-content:start;overflow:hidden;padding-top:.8em}
-.tvppl .av{--s:3.8em;border-width:4px}
+.tvppl .av{--s:10vh;border-width:4px}
 .tvppl .nm{font-size:1em}
 .tvletter{height:min(36vh,26vw);width:auto;aspect-ratio:3/4;font-size:min(24vh,17vw);border-width:5px;border-radius:30px;box-shadow:9px 9px 0 var(--ink)}
 .tvletter.back{font-size:min(18vh,13vw)}
@@ -207,7 +227,7 @@ body.tv footer{display:none}
 .tvprompts .num{width:1.7em;height:1.7em;font-size:1.1em;flex:none}
 .tvrace{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:1.2vh;overflow:hidden}
 .tvrace li{display:grid;grid-template-columns:auto 1fr auto;gap:.8em;align-items:center}
-.tvrace .av{--s:2.4em;border-width:3px}
+.tvrace .av{--s:5.4vh;border-width:3px}
 .tvrace .track{height:1.6em;background:var(--soft);border:3px solid var(--ink);border-radius:99px;overflow:hidden;position:relative}
 .tvrace .track i{position:absolute;inset-block:0;right:0;background:var(--c);transition:width .5s cubic-bezier(.2,.9,.3,1)}
 .tvrace .track span{position:absolute;right:.6em;top:50%;transform:translateY(-50%);font-weight:800;font-size:.85em;white-space:nowrap}
@@ -219,7 +239,7 @@ body.tv footer{display:none}
 .spot h3 .num{width:1.5em;height:1.5em;font-size:.8em;flex:none}
 .spot .answers{flex:1;display:flex;flex-wrap:wrap;gap:1.4vh .9vw;align-content:flex-start;overflow:hidden}
 .spot .a{display:inline-flex;align-items:center;gap:.5em;border:3px solid var(--ink);border-radius:16px;padding:.35em .7em .35em .4em;font-size:1.25em;font-weight:800;background:var(--card);box-shadow:3px 3px 0 var(--ink);animation:popin .4s cubic-bezier(.3,1.6,.6,1) both;line-height:1.15}
-.spot .a .av{--s:1.9em;border-width:2px}
+.spot .a .av{--s:4.6vh;border-width:2px}
 .spot .a small{font-weight:700;color:var(--ink-2);font-size:.65em}
 .spot .a .pp{font-size:.8em;border:2px solid var(--ink);border-radius:99px;padding:0 .5em}
 .spot .a.ok{background:#E3FAF1} .spot .a.ok .pp{background:var(--mint)}
@@ -311,6 +331,14 @@ body.tv .stopbar .lt{font-size:3.4em}
           <button type="button" data-d="180">٣ دقايق</button>
         </div>
       </div>
+      <div class="field">
+        <span id="roundsLbl" style="font-size:.9rem;font-weight:700">عدد الجولات</span>
+        <div class="seg" id="roundsSeg" role="group" aria-labelledby="roundsLbl">
+          <button type="button" data-n="3">٣ جولات</button>
+          <button type="button" data-n="5">٥ جولات</button>
+          <button type="button" data-n="7">٧ جولات</button>
+        </div>
+      </div>
       <button id="startBtn" class="big pink" type="button">ابدأ الجولة</button>
       <a id="tvLink" class="btn flat" href="#" target="_blank" rel="noopener">📺 افتح شاشة العرض (تلفزيون أو لابتوب)</a>
     </div>
@@ -359,6 +387,20 @@ body.tv .stopbar .lt{font-size:3.4em}
     <div id="reviewWait" class="card" hidden style="text-align:center;font-weight:800">المضيف يراجع الإجابات… 🧐</div>
   </section>
 
+  <!-- FINAL -->
+  <section id="final" hidden>
+    <div class="topbar">
+      <span class="brand"><i>خ</i>خزعبلات</span>
+      <button class="icon-btn sound-btn" type="button" aria-label="الصوت">🔊</button>
+    </div>
+    <div style="text-align:center"><h1 style="font-size:2.6rem">النتيجة النهائية 🏆</h1><p class="muted" id="finalSub" style="font-weight:700"></p></div>
+    <div class="podium" id="podium"></div>
+    <ol id="finalBoard" class="board"></ol>
+    <button id="newGameBtn" class="big pink" type="button" hidden>لعبة جديدة 🎲</button>
+    <div id="finalWait" class="card" hidden style="text-align:center;font-weight:800">انتهت اللعبة! المضيف يقدر يبدأ لعبة جديدة.</div>
+    <button id="leaveBtn2" class="flat" type="button">اطلع من الغرفة</button>
+  </section>
+
   <!-- TV -->
   <section id="tv" hidden>
     <div class="tvhead">
@@ -382,15 +424,11 @@ body.tv .stopbar .lt{font-size:3.4em}
 <script src="qrcode.js"></script>
 <script type="module">
 const LETTERS = "ا ب ت ج ح خ د ر ز س ش ص ط ع ف ق ك ل م ن ه و ي".split(" ");
-const PROMPTS = [
- "اسم ولد","اسم بنت","حيوان","طائر","حشرة","شيء في المطبخ","شيء في المكتبة","أكلة","أكلة شعبية","مشروب",
- "حلويات","فاكهة أو خضار","مدينة أو دولة","مهنة","لون","ماركة","شيء في الشنطة","شيء في الحمام","شخصية مشهورة",
- "مسلسل أو فيلم","شيء تلبسه","شيء في السيارة","جزء من الجسم","شيء في البحر","شيء تلقاه في المول","شيء في السوبرماركت",
- "أداة","شيء يطير","شيء ثقيل","مكان في البيت","شيء في الصيدلية","رياضة","لعبة","تطبيق في الجوال","كلمة تقولها لما تعصب",
- "عذر للتأخير","شيء يخوّف","شيء ناعم","شيء في المكتب","نبات أو زهرة","صفة لشخص","فعل","شيء في الحديقة","آلة موسيقية",
- "شيء في العرس","شيء في رمضان","شيء في الكشتة","شيء في السماء","شيء في المدرسة","شيء تهديه لأحد","شيء أحمر","شيء ينكسر",
- "شيء في المستشفى","شيء في المطار","اسم عائلة","شيء في الثلاجة","شيء له ريحة","شيء في العيد","شيء في المقهى","شيء تسويه الصبح"
-];
+/* Every category below has answers for every letter in LETTERS (checked letter by letter). */
+const CORE = ["اسم ولد","اسم بنت","حيوان","نبات أو فاكهة","جماد","بلاد"];
+const EXTRA = ["أكلة","صفة لشخص","فعل","شخصية مشهورة","اسم عائلة","شيء في البيت","شيء في السوبرماركت","شيء تلبسه","جزء من الجسم","مكان"];
+const MAX_ROUNDS_DEFAULT = 3;
+const maxRounds = m => (m && m.maxRounds) || MAX_ROUNDS_DEFAULT;
 const Q = 10;
 const AV_COLORS = ["#FF3E8A","#2F6BFF","#19C98E","#FF8A1F","#A66BFF","#00C2D1","#F0384F","#9BD80F","#FFB000","#FF6FCF","#4FA3FF","#7AE0B8"];
 const QS = new URLSearchParams(location.search);
@@ -533,7 +571,7 @@ const S = {
 const base = () => `rooms/${S.code}`;
 const isHost = () => !S.tv && S.meta && S.meta.host === S.pid;
 const pname = pid => (S.players[pid] && S.players[pid].name) || "لاعب";
-const SECTIONS = ["setup","home","lobby","play","review","tv"];
+const SECTIONS = ["setup","home","lobby","play","review","final","tv"];
 function show(id){ for(const s of SECTIONS) $(s).hidden = s!==id; }
 function roomLink(code, extra={}){
   const u = new URL(location.href); u.search = ""; u.hash = "";
@@ -559,7 +597,7 @@ function boardHTML(list, big=false){
   return list.map((x,i) => `
     <li class="${i===0 && x.pts>0 ? "first" : ""}">
       <span class="rk">${i===0 && x.pts>0 ? "🏆" : i+1}</span>
-      ${avatar(x.pid, x.name, {size:big?"2.2em":"34px"})}
+      ${avatar(x.pid, x.name, {size:big?"5.2vh":"34px"})}
       <span class="nm">${esc(x.name)}${x.pid===S.pid ? " <small>(أنت)</small>" : ""}${x.extra ? ` <small>${esc(x.extra)}</small>` : ""}</span>
       <span class="sc">${x.label ?? x.pts}</span>
       <span class="barwrap"><i style="--c:${colorOf(x.pid)}" data-w="${Math.round(x.pts/max*100)}"></i></span>
@@ -616,7 +654,7 @@ async function enter(code, asHost){
     S.code = code; S.name = name;
     S.pid = store.get("kz_pid_"+code) || rid();
     store.set("kz_pid_"+code, S.pid);
-    if(asHost) await db.set(`${base()}/meta`, { host:S.pid, created:db.now(), phase:"lobby", round:0, duration:90 });
+    if(asHost) await db.set(`${base()}/meta`, { host:S.pid, created:db.now(), phase:"lobby", round:0, duration:90, maxRounds:MAX_ROUNDS_DEFAULT });
     const pp = `${base()}/players/${S.pid}`;
     const existing = await db.get(pp);
     await db.update(pp, { name, joined:(existing && existing.joined) || db.now(), online:true });
@@ -644,7 +682,7 @@ function subscribe(){
   S.unsubs.push(db.on(b+"/meta", m => { S.meta = m; onMeta(); }));
   S.unsubs.push(db.on(b+"/players", p => { S.players = p || {}; onPlayers(); }));
   S.unsubs.push(db.on(b+"/progress", p => { S.progress = p || {}; renderRace(); if(S.tv) renderTV(); }));
-  S.unsubs.push(db.on(b+"/results", r => { S.results = r || {}; renderLobby(); if(S.tv) renderTV(); }));
+  S.unsubs.push(db.on(b+"/results", r => { S.results = r || {}; renderLobby(); if(S.meta && S.meta.phase==="final") renderFinal(); if(S.tv) renderTV(); }));
 }
 function onPlayers(){
   const ids = Object.keys(S.players);
@@ -669,6 +707,7 @@ function onMeta(){
   const m = S.meta;
   if(!m){ show("home"); $("homeErr").textContent = "الغرفة انحذفت."; return; }
   const r = m.round || 0;
+  if(r===0 && S.builtRound){ S.celebrated = {}; S.builtRound = 0; S.myRound = 0; S.flushedRound = 0; if($("tvMain")) $("tvMain").dataset.k = ""; }
   if(r !== S.subRound){
     S.roundUnsubs.forEach(f=>f()); S.roundUnsubs=[]; S.subRound=r; S.answers={}; S.rejects={};
     if(r>0){
@@ -680,7 +719,7 @@ function onMeta(){
   const changed = S.lastPhase !== null && phaseKey !== S.lastPhase;
   S.lastPhase = phaseKey;
   if(changed && m.phase==="review") Sound.buzzer();
-  if(changed && m.phase==="lobby" && r>0 && !S.celebrated[r]){ S.celebrated[r]=true; Sound.win(); confetti(); }
+  if(changed && (m.phase==="lobby" || m.phase==="final") && r>0 && !S.celebrated[r]){ S.celebrated[r]=true; Sound.win(); confetti(m.phase==="final" ? 5000 : 2800); }
 
   if(S.tv){ renderTV(); return; }
   if(m.phase==="play"){
@@ -690,6 +729,9 @@ function onMeta(){
     if(S.myRound===r && S.flushedRound!==r){ S.flushedRound=r; flushNow(); }
     lockInputs();
     show("review"); renderReview();
+    if(changed) scrollTo({top:0, behavior:"smooth"});
+  }else if(m.phase==="final"){
+    show("final"); renderFinal();
     if(changed) scrollTo({top:0, behavior:"smooth"});
   }else{
     show("lobby"); renderLobby();
@@ -723,15 +765,22 @@ function renderLobby(){
   }else $("lastWin").hidden = true;
   $("hostCtl").hidden = !host;
   $("waitHost").hidden = host;
-  $("startBtn").textContent = m.round ? `ابدأ الجولة ${m.round+1} 🎲` : "ابدأ الجولة الأولى 🎲";
+  const last = (m.round||0)+1 === maxRounds(m);
+  $("startBtn").textContent = !m.round ? `ابدأ الجولة الأولى من ${maxRounds(m)} 🎲` : last ? "ابدأ الجولة الأخيرة 🔥" : `ابدأ الجولة ${m.round+1} من ${maxRounds(m)} 🎲`;
   const d = String(m.duration || 90);
   $$("#durSeg button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.d===d)));
+  const mr = String(maxRounds(m));
+  $$("#roundsSeg button").forEach(b => { b.setAttribute("aria-pressed", String(b.dataset.n===mr)); b.disabled = (m.round||0) > 0 && b.dataset.n!==mr; });
   const hostP = S.players[m.host];
   $("takeHost").hidden = host || (hostP && hostP.online);
 }
 $("ppl").addEventListener("click", e => {
   const b = e.target.closest("[data-kick]"); if(!b || !isHost()) return;
   S.db.remove(`${base()}/players/${b.dataset.kick}`);
+});
+$("roundsSeg").addEventListener("click", e => {
+  const b = e.target.closest("[data-n]"); if(!b || !isHost() || (S.meta.round||0) > 0) return;
+  S.db.update(`${base()}/meta`, { maxRounds:+b.dataset.n });
 });
 $("durSeg").addEventListener("click", e => {
   const b = e.target.closest("[data-d]"); if(!b || !isHost()) return;
@@ -745,7 +794,7 @@ $("shareBtn").addEventListener("click", async () => {
   catch { $("shareNote").textContent = link; }
 });
 $("startBtn").addEventListener("click", async () => {
-  const m = S.meta; if(!isHost()) return;
+  const m = S.meta; if(!isHost() || (m.round||0) >= maxRounds(m)) return;
   $("startBtn").disabled = true;
   try{
     let used = Object.assign({}, m.used||{});
@@ -753,7 +802,7 @@ $("startBtn").addEventListener("click", async () => {
     if(!pool.length){ pool = LETTERS.slice(); used = {}; }
     const letter = pool[rnd(pool.length)];
     used[letter] = true;
-    const prompts = shuffle(PROMPTS).slice(0,Q);
+    const prompts = [...CORE, ...shuffle(EXTRA).slice(0, Q-CORE.length)];
     const dur = m.duration || 90;
     const now = S.db.now();
     await S.db.update(`${base()}/meta`, {
@@ -771,7 +820,7 @@ async function buildPlay(){
   const m = S.meta, r = m.round;
   S.builtRound = r; S.myRound = r; S.revealed = false; S.stopTried = false; S.lastN = -1; S.lastCount = null;
   S.my = Array(Q).fill("");
-  $("playRound").textContent = `الجولة ${r}`;
+  $("playRound").textContent = `الجولة ${r} من ${maxRounds(m)}`;
   const L = $("letter"); L.className = "letter back"; L.textContent = "؟";
   $("sheet").innerHTML = arr(m.prompts).map((p,i) => `
     <li id="li${i}"><span class="num">${i+1}</span>
@@ -888,7 +937,7 @@ function renderReview(){
   const host = isHost();
   const { pts, detail, pids } = computeRound();
   S.detail = detail;
-  $("reviewRound").textContent = `الجولة ${m.round}`;
+  $("reviewRound").textContent = `الجولة ${m.round} من ${maxRounds(m)}`;
   $("reviewLetter").textContent = m.letter;
   $("stopWho").textContent = stopText(m);
   $("hostHint").hidden = !host;
@@ -922,15 +971,48 @@ $("qcards").addEventListener("click", e => {
   Sound.pop();
   if((want==="ok") === d.auto) S.db.remove(path); else S.db.set(path, want);
 });
+$("newGameBtn").addEventListener("click", async () => {
+  if(!isHost()) return;
+  $("newGameBtn").disabled = true;
+  try{
+    await Promise.all(["results","answers","rejects","progress"].map(k => S.db.remove(`${base()}/${k}`)));
+    await S.db.update(`${base()}/meta`, { phase:"lobby", round:0, used:null, stoppedBy:null, stopReason:null });
+    S.celebrated = {}; S.builtRound = 0; S.myRound = 0; S.flushedRound = 0;
+  } finally { $("newGameBtn").disabled = false; }
+});
+$("leaveBtn2").addEventListener("click", leave);
 $("commitBtn").addEventListener("click", async () => {
   if(!isHost()) return;
   $("commitBtn").disabled = true;
   try{
     const { pts } = computeRound();
     await S.db.set(`${base()}/results/r${S.meta.round}`, pts);
-    await S.db.update(`${base()}/meta`, { phase:"lobby" });
+    await S.db.update(`${base()}/meta`, { phase: S.meta.round >= maxRounds(S.meta) ? "final" : "lobby" });
   } finally { $("commitBtn").disabled = false; }
 });
+
+/* ---------- final (phone + TV) ---------- */
+function podiumHTML(list, big){
+  const top = [list[1], list[0], list[2]];
+  const cls = ["p2","p1","p3"], place = ["2","1","3"];
+  return top.map((x,i) => x ? `
+    <div class="pod ${cls[i]}">
+      ${avatar(x.pid, x.name, {size: big ? null : (i===1 ? "68px" : "54px"), crown: i===1})}
+      <span class="nm">${esc(x.name)}${x.pid===S.pid ? " (أنت)" : ""}</span>
+      <span class="pts">${x.pts} نقطة</span>
+      <div class="block">${place[i]}</div>
+    </div>` : `<div class="pod empty"></div>`).join("");
+}
+function renderFinal(){
+  const m = S.meta; if(S.tv || !m || m.phase!=="final") return;
+  const list = standings();
+  const w = list[0];
+  $("finalSub").textContent = w ? `الفايز بعد ${m.round} جولات: ${w.name} 🎉` : "";
+  $("podium").innerHTML = podiumHTML(list, false);
+  $("finalBoard").innerHTML = boardHTML(list); growBars($("finalBoard"));
+  $("newGameBtn").hidden = !isHost();
+  $("finalWait").hidden = isHost();
+}
 
 /* ================= TV view ================= */
 function qrSVG(text){
@@ -944,7 +1026,7 @@ function renderTV(){
   if(!S.tv || !S.meta) return;
   show("tv");
   const m = S.meta, phase = m.phase;
-  $("tvRound").textContent = m.round ? `الجولة ${m.round}` : "";
+  $("tvRound").textContent = phase==="final" ? "النتيجة النهائية 🏆" : m.round ? `الجولة ${m.round} من ${maxRounds(m)}` : "";
   const main = $("tvMain"), side = $("tvSide");
   const players = Object.entries(S.players).sort((a,b)=>(a[1].joined||0)-(b[1].joined||0));
 
@@ -998,6 +1080,13 @@ function renderTV(){
     side.innerHTML = `<div class="tvtitle">مين قرّب يخلص؟ 🏁</div><ol class="tvrace">${list.map(x=>`
       <li class="${x.n>=Q?"full":""}">${avatar(x.pid,x.name)}<span class="track"><i style="--c:${colorOf(x.pid)};width:${x.n/Q*100}%"></i><span>${esc(x.name)}</span></span><b>${x.n}/${Q}</b></li>`).join("")}</ol>`;
     tickTV();
+  }
+  else if(phase==="final"){
+    const list = standings();
+    main.dataset.k = "final:"+m.round;
+    main.innerHTML = `<div class="tvpanel grow" style="justify-content:flex-end"><div class="tvbanner" style="padding:0">${list[0] ? `مبروك ${esc(list[0].name)}! 🎉` : ""}</div><div class="podium">${podiumHTML(list, true)}</div></div>`;
+    side.innerHTML = `<div class="tvtitle">الترتيب النهائي</div><ol class="board tvboard">${boardHTML(list.slice(0,7),true)}</ol>`;
+    growBars(side);
   }
   else if(phase==="review"){
     const { pts, detail, pids } = computeRound();
