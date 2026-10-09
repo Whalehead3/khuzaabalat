@@ -339,6 +339,14 @@ body.tv .stopbar .lt{font-size:3.4em}
           <button type="button" data-n="7">٧ جولات</button>
         </div>
       </div>
+      <div class="field">
+        <span id="levelLbl" style="font-size:.9rem;font-weight:700">صعوبة الأسئلة</span>
+        <div class="seg" id="levelSeg" role="group" aria-labelledby="levelLbl">
+          <button type="button" data-l="easy">سهلة</button>
+          <button type="button" data-l="normal">متوسطة</button>
+          <button type="button" data-l="hard">صعبة 🔥</button>
+        </div>
+      </div>
       <button id="startBtn" class="big pink" type="button">ابدأ الجولة</button>
       <a id="tvLink" class="btn flat" href="#" target="_blank" rel="noopener">📺 افتح شاشة العرض (تلفزيون أو لابتوب)</a>
     </div>
@@ -424,9 +432,28 @@ body.tv .stopbar .lt{font-size:3.4em}
 <script src="qrcode.js"></script>
 <script type="module">
 const LETTERS = "ا ب ت ج ح خ د ر ز س ش ص ط ع ف ق ك ل م ن ه و ي".split(" ");
-/* Every category below has answers for every letter in LETTERS (checked letter by letter). */
+/* Classic + broad categories have answers for every letter in LETTERS. */
 const CORE = ["اسم ولد","اسم بنت","حيوان","نبات أو فاكهة","جماد","بلاد"];
 const EXTRA = ["أكلة","صفة لشخص","فعل","شخصية مشهورة","اسم عائلة","شيء في البيت","شيء في السوبرماركت","شيء تلبسه","جزء من الجسم","مكان"];
+/* Harder questions. only = the letters it works with; not = letters it doesn't work with. */
+const FUN = [
+ {q:"مسلسل أو فيلم"}, {q:"عذر للتأخير"}, {q:"كلمة تقولها لما تعصب"}, {q:"شيء تهديه لأحد", not:"ي"},
+ {q:"شيء يخوّف", not:"ي"}, {q:"مهنة", not:"هي"}, {q:"شيء في المطبخ", not:"ي"}, {q:"شيء تلقاه في المول", not:"ي"},
+ {q:"طائر", not:"تجر"}, {q:"مشروب", not:"دصطو"}, {q:"ماركة", not:"حخصطعقوي"}, {q:"رياضة", not:"احخزعلنو"},
+ {q:"شيء ناعم", not:"تعلنهي"}, {q:"شيء في الكشتة", only:"جحخدرشفقكمن"}, {q:"شيء في السماء", only:"برزسشصطعقكمنه"},
+ {q:"تطبيق في الجوال", only:"اتجزسشطفكلمنهوي"}, {q:"شخصية كرتونية", only:"بتجدسشعفكلمهو"}, {q:"شيء أحمر", only:"بتدرشطفكو"},
+ {q:"شيء في المدرسة", only:"ابجحدسشصطعفقكلم"}, {q:"شيء في العرس", only:"بحدرزشطعفقكم"}, {q:"شيء ثقيل", only:"بجحدسشصطفقكم"},
+ {q:"حشرة", only:"بجخدزصعفقن"}, {q:"لون", only:"ابرزسفكنل"}, {q:"شيء في البحر", only:"احسقردمصشلج"}
+];
+const fits = (f,L) => f.only ? f.only.includes(L) : !(f.not||"").includes(L);
+/* How many of each kind per level: [classic, broad, hard] */
+const LEVELS = { easy:[6,4,0], normal:[2,2,6], hard:[0,0,10] };
+function pickPrompts(letter, level){
+  const [c,b,h] = LEVELS[level] || LEVELS.normal;
+  const hard = shuffle(FUN.filter(f => fits(f,letter)).map(f => f.q)).slice(0,h);
+  const broad = shuffle(EXTRA).slice(0, b + (h - hard.length));
+  return shuffle([...shuffle(CORE).slice(0,c), ...broad, ...hard]).slice(0,Q);
+}
 const MAX_ROUNDS_DEFAULT = 3;
 const maxRounds = m => (m && m.maxRounds) || MAX_ROUNDS_DEFAULT;
 const Q = 10;
@@ -654,7 +681,7 @@ async function enter(code, asHost){
     S.code = code; S.name = name;
     S.pid = store.get("kz_pid_"+code) || rid();
     store.set("kz_pid_"+code, S.pid);
-    if(asHost) await db.set(`${base()}/meta`, { host:S.pid, created:db.now(), phase:"lobby", round:0, duration:90, maxRounds:MAX_ROUNDS_DEFAULT });
+    if(asHost) await db.set(`${base()}/meta`, { host:S.pid, created:db.now(), phase:"lobby", round:0, duration:90, maxRounds:MAX_ROUNDS_DEFAULT, level:"normal" });
     const pp = `${base()}/players/${S.pid}`;
     const existing = await db.get(pp);
     await db.update(pp, { name, joined:(existing && existing.joined) || db.now(), online:true });
@@ -769,6 +796,8 @@ function renderLobby(){
   $("startBtn").textContent = !m.round ? `ابدأ الجولة الأولى من ${maxRounds(m)} 🎲` : last ? "ابدأ الجولة الأخيرة 🔥" : `ابدأ الجولة ${m.round+1} من ${maxRounds(m)} 🎲`;
   const d = String(m.duration || 90);
   $$("#durSeg button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.d===d)));
+  const lv = m.level || "normal";
+  $$("#levelSeg button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.l===lv)));
   const mr = String(maxRounds(m));
   $$("#roundsSeg button").forEach(b => { b.setAttribute("aria-pressed", String(b.dataset.n===mr)); b.disabled = (m.round||0) > 0 && b.dataset.n!==mr; });
   const hostP = S.players[m.host];
@@ -777,6 +806,10 @@ function renderLobby(){
 $("ppl").addEventListener("click", e => {
   const b = e.target.closest("[data-kick]"); if(!b || !isHost()) return;
   S.db.remove(`${base()}/players/${b.dataset.kick}`);
+});
+$("levelSeg").addEventListener("click", e => {
+  const b = e.target.closest("[data-l]"); if(!b || !isHost()) return;
+  S.db.update(`${base()}/meta`, { level:b.dataset.l });
 });
 $("roundsSeg").addEventListener("click", e => {
   const b = e.target.closest("[data-n]"); if(!b || !isHost() || (S.meta.round||0) > 0) return;
@@ -802,7 +835,7 @@ $("startBtn").addEventListener("click", async () => {
     if(!pool.length){ pool = LETTERS.slice(); used = {}; }
     const letter = pool[rnd(pool.length)];
     used[letter] = true;
-    const prompts = [...CORE, ...shuffle(EXTRA).slice(0, Q-CORE.length)];
+    const prompts = pickPrompts(letter, m.level || "normal");
     const dur = m.duration || 90;
     const now = S.db.now();
     await S.db.update(`${base()}/meta`, {
