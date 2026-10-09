@@ -7,7 +7,7 @@
 <meta name="description" content="العبوا يبدأ بحرف الـ؟ أونلاين مع أصحابكم: حرف واحد، عشرة أسئلة، وأول واحد يخلص يقول خلصت.">
 <meta property="og:title" content="يبدأ بحرف الـ؟">
 <meta property="og:description" content="ادخل الغرفة والعب معنا!">
-<meta name="theme-color" content="#F7F1E7">
+<meta name="theme-color" content="#F2B48A">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Carlito:wght@400;700&family=Almarai:wght@400;700;800&display=swap">
@@ -18,9 +18,11 @@
    ink navy, thin rules, soft shadows.
    Phone: one column per game phase. TV (?tv=1): a 16:9 stage, board on the right, players on the left. */
 :root{
-  --paper:#F7F1E7; --sheet:#FFFCF7; --ink:#2E1E14; --ink-2:#7A6352; --rule:#ECE2D3; --edge:#E5D9C7;
-  --pen:#C8644B; --pen-soft:#F7E2DA; --sun:#C8644B; --sun-soft:#F3E3C8; --sage:#6E8F55; --sage-soft:#E7EEDD;
-  --clay:#B8322A; --clay-soft:#F4DCD6; --margin:#EBC9BC; --answer:#6B3A26; --sand:#C9A36A;
+  --paper:#FFF8EE; --sheet:#FFFFFF; --ink:#3B2416; --ink-2:#8C6A52; --rule:#EEDFCB; --edge:#E4CFB3;
+  --pen:#C9603F; --pen-soft:#FBE3D8; --sun:#C9603F; --sun-soft:#F8E6D2; --sage:#7E9A5C; --sage-soft:#E9EFDD;
+  --clay:#B8322A; --clay-soft:#F4DCD6; --margin:#F0D2C4; --answer:#C9603F; --sand:#DDA36D;
+  --sk:255px 18px 225px 18px / 18px 225px 18px 255px; --skb:18px 255px 18px 225px / 225px 18px 255px 18px;
+  --dunes:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 390 300' preserveAspectRatio='none'><defs><linearGradient id='g' x1='0' y1='0' x2='0' y2='1'><stop offset='0' stop-color='%23F2B48A'/><stop offset='.72' stop-color='%23FBE6D0'/></linearGradient></defs><rect width='390' height='300' fill='url(%23g)'/><path d='M0 196C80 162 150 172 220 194S330 182 390 170V300H0z' fill='%23EBBD90'/><path d='M0 228C90 205 170 218 250 236S350 225 390 221V300H0z' fill='%23DC9D6C'/><path d='M0 258C100 241 200 252 280 264S360 257 390 255V300H0z' fill='%23C9805A'/><path d='M0 300V282C120 276 260 278 390 286V300z' fill='%23FFF8EE'/></svg>");
   /* aliases used by the script/markup */
   --table:var(--paper); --card:var(--sheet); --soft:#F3F1EA; --pink:var(--pen); --blue:var(--pen); --mint:var(--sage); --orange:var(--sun); --red:var(--clay);
   /* Calibri where installed, its metric twin Carlito elsewhere; Arabic letters fall to Almarai */
@@ -283,6 +285,92 @@ body.tv .pod .pts{font-size:1.25em}
 body.tv .pod .block{font-size:3.6em}
 body.tv .pod.p1 .block{height:30vh} body.tv .pod.p2 .block{height:21vh} body.tv .pod.p3 .block{height:14vh}
 
+/* ================= Illustrated desert ================= */
+body{background:var(--paper) var(--dunes) top center/100% 300px no-repeat}
+.topbar .brand{color:#fff;text-shadow:0 1px 0 #9A4E2E}
+.icon-btn{border:2px solid var(--ink)}
+.card,.roombox,.sheet,.qcard,.board,.tvpanel{border:2px solid var(--ink);border-radius:var(--sk);box-shadow:none}
+.banner{border:2px solid var(--ink);border-radius:var(--sk);background:var(--sun-soft)}
+.pink,.blue,.big.pink,.donebtn{border:2px solid var(--ink);border-radius:var(--skb);box-shadow:3px 4px 0 var(--ink)}
+.pink,.blue{background:var(--pen);color:#FFF8EE}
+.pink:hover:not(:disabled),.blue:hover:not(:disabled){background:#B5532F}
+.flat,.seg{border-color:#D9C3A8}
+.donebtn{background:var(--pen);color:#FFF8EE;font-size:1.5rem}
+.donebtn:disabled{background:#F1E6D6;color:#B49A82;border-color:#CDB79C;box-shadow:none}
+input{background:var(--paper);border-color:#E2CDB2}
+/* hero: the letter is the sun setting over the dunes */
+.hero{display:flex;flex-direction:column;align-items:center;gap:18px;padding-top:0;margin-top:-18px;grid-template-columns:none}
+.hero h1{color:#FFF8EE;text-shadow:0 2px 0 #8E4527,0 0 18px rgba(142,69,39,.35);font-size:clamp(2.2rem,10vw,2.9rem);text-align:center}
+.intro{color:var(--ink-2);font-weight:700;text-align:center;max-width:36ch;margin:40px auto 0}
+.sun,.letter{background:var(--sun);color:#FFF8EE;box-shadow:0 0 0 12px rgba(201,96,63,.16),0 0 0 26px rgba(201,96,63,.08)}
+.sun::after,.letter::after{display:none}
+.letter.back{background:var(--ink);color:#FFF8EE;box-shadow:0 0 0 12px rgba(59,36,22,.12),0 0 0 26px rgba(59,36,22,.06)}
+.ring{background:var(--sheet);border-radius:50%;border:2px solid var(--ink)}
+.ring .bg{stroke:var(--rule)}
+.ring .fg{stroke:var(--pen)}
+.rlabel{color:var(--ink)}
+.stage{padding-block:8px}
+.roombox::after{border-top-color:#E4CFB3}
+.roombox .codebig{color:var(--ink)}
+.roombox #shareBtn{border:2px solid var(--ink);box-shadow:2px 3px 0 var(--ink)}
+.sheet{background-image:none;padding:4px 0}
+.sheet li{border-bottom:1.5px dashed #E8D4BB}
+.num{border:2px solid var(--ink);color:var(--ink);width:1.85rem;height:1.85rem;font-size:.9rem}
+.sheet li.done .num{background:var(--sage);border-color:var(--sage);color:#fff}
+.q input{color:var(--answer)}
+.q input::placeholder{color:#D7BFA4}
+.q input.okl{border-bottom-color:var(--sage)}
+.chip{border:1.5px solid #D9C3A8}
+.chip.full{background:var(--pen);border-color:var(--ink);color:#FFF8EE}.chip.full b{color:#FFF8EE}
+.stopbar{border:2px solid var(--ink);border-radius:var(--sk);background:var(--pen)}
+.stopbar .lt{background:#FFF8EE;color:var(--pen);border:2px solid var(--ink)}
+.qcard h4 .num{background:transparent}
+.ans.dup .pp,.spot .a.dup .pp{background:var(--sand);color:#fff}
+.ans.dup,.spot .a.dup{background:#FBEBD8}
+.board .rk{background:transparent;border:1.5px solid #D9C3A8}
+.board li.first .rk{background:var(--pen);color:#fff;border-color:var(--ink)}
+.board li{border-top:1.5px dashed #EEDFCB}
+.pod .block{border:2px solid var(--ink);border-radius:18px 18px 6px 6px}
+.pod.p1 .block{background:var(--pen);color:#FFF8EE}
+.pod.p2 .block{background:#F3D9BE}.pod.p3 .block{background:#E9C7A9}
+.ic{background:var(--paper);border:1.5px solid transparent}
+.ic[aria-pressed="true"]{background:var(--pen-soft);border:2px solid var(--pen)}
+footer{color:#C9AE92}
+
+/* TV dashboard: sky band with the letter-sun, two panels below */
+body.tv{background:var(--paper)}
+body.tv .wrap{padding:0}
+#tv{display:flex;flex-direction:column;height:100vh;gap:0}
+.tvsky{position:relative;height:46vh;flex:none;background:var(--dunes) center/100% 100% no-repeat;padding:2.6vh 3vw 0;display:flex;flex-direction:column}
+.tvtop{display:flex;justify-content:space-between;align-items:center}
+.tvtop .brand{font-size:1.6em;color:#FFF8EE;text-shadow:0 2px 0 #9A4E2E}
+.tvtop .brand i{width:1.5em;height:1.5em;border:2px solid var(--ink)}
+.tvround{font-weight:800;font-size:1.5em;color:var(--ink);background:#FFF8EE;border:2px solid var(--ink);border-radius:var(--skb);padding:.15em .9em}
+.tvskyrow{flex:1;display:grid;grid-template-columns:1fr auto 1fr;align-items:start;gap:3vw;padding-top:1vh}
+.tvskyside{display:flex;justify-content:center;align-items:flex-start;min-width:0}
+.tvsun{width:min(27vh,18vw);height:min(27vh,18vw);font-size:min(17vh,11vw);margin-top:.5vh}
+.tvsun.back{font-size:min(13vh,9vw)}
+.skycard{background:#FFF8EE;border:2px solid var(--ink);border-radius:var(--sk);padding:1.4vh 1.4vw;display:flex;gap:1.2vw;align-items:center;max-width:100%}
+.skycard .qr{width:min(19vh,11vw);padding:6px;border:0}
+.skycard .tvcode{font-size:4.2em;color:var(--ink)}
+.skycard .tvurl{font-size:.85em}
+.skynote{font-weight:800;font-size:1.7em;color:var(--ink);text-align:center;line-height:1.3}
+.skynote small{display:block;font-size:.62em;font-weight:700;color:#7A4A30}
+.tvring{width:min(24vh,15vw);height:min(24vh,15vw)}
+.tvring .t{font-size:2.8em}
+.tvgrid{flex:1;display:grid;grid-template-columns:1.55fr 1fr;gap:2vw;min-height:0;padding:0 3vw 3vh;margin-top:-2vh;position:relative}
+.tvpanel{padding:2.2vh 1.8vw}
+.tvrules{display:flex;flex-direction:column;gap:1.6vh;counter-reset:r;margin-top:1vh}
+.tvrules li{counter-increment:r;display:flex;gap:.7em;align-items:center;font-weight:700;font-size:1.2em}
+.tvrules li::before{content:counter(r);flex:none;width:1.8em;height:1.8em;border-radius:50%;border:2px solid var(--ink);display:grid;place-items:center;font-weight:800;font-size:.85em}
+.tvprompts li{font-size:1.25em;border-bottom:1.5px dashed #EEDFCB;padding:.55em .2em}
+.tvprompts .num{background:transparent}
+.tvboard{border:0!important;border-radius:0!important;padding:0!important}
+.tvtitle{font-size:1.6em}
+.tvppl .av{--s:9vh}
+.tvrace .track{border:1.5px solid #E4CFB3}
+.tvrace .track i{background:color-mix(in srgb,var(--c) 45%,#fff)}
+
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
 </style>
 </head>
@@ -299,9 +387,9 @@ body.tv .pod.p1 .block{height:30vh} body.tv .pod.p2 .block{height:21vh} body.tv 
     <div class="topbar"><span></span><button class="icon-btn sound-btn" type="button" aria-label="الصوت">🔊</button></div>
     <div class="hero">
       <div class="sun" id="heroSun" aria-hidden="true">؟</div>
-      <h1><span class="t1">يبدأ بحرف الـ…</span><small>لعبة الحروف اللي تعرفونها، أونلاين مع أهلك وربعك</small></h1>
-      <p>حرف واحد، عشرة أسئلة. أول واحد يعبّي كل الخانات يقول <b>خلصت</b> وتوقف الجولة عند الكل.</p>
+      <h1>يبدأ بحرف الـ…</h1>
     </div>
+    <p class="intro">حرف واحد، عشرة أسئلة. أول واحد يعبّي كل الخانات يقول <b>خلصت</b> وتوقف الجولة عند الكل.</p>
     <div class="card">
       <div class="field">
         <label for="name">اسمك</label>
@@ -451,11 +539,15 @@ body.tv .pod.p1 .block{height:30vh} body.tv .pod.p2 .block{height:21vh} body.tv 
 
   <!-- TV -->
   <section id="tv" hidden>
-    <div class="tvhead">
-      <span class="brand"><i>؟</i>يبدأ بحرف الـ؟</span>
-      <div class="row">
-        <span class="tvtitle" id="tvRound"></span>
-        <button class="icon-btn sound-btn" type="button" aria-label="الصوت">🔊</button>
+    <div class="tvsky">
+      <div class="tvtop">
+        <span class="brand"><i>؟</i>يبدأ بحرف الـ…</span>
+        <div class="row"><span class="tvround" id="tvRound"></span><button class="icon-btn sound-btn" type="button" aria-label="الصوت">🔊</button></div>
+      </div>
+      <div class="tvskyrow">
+        <div class="tvskyside" id="tvSkyA"></div>
+        <div id="tvSun" class="letter tvsun">؟</div>
+        <div class="tvskyside" id="tvSkyB"></div>
       </div>
     </div>
     <div class="tvgrid">
@@ -911,7 +1003,7 @@ function onMeta(){
   const m = S.meta;
   if(!m){ show("home"); $("homeErr").textContent = "الغرفة انحذفت."; return; }
   const r = m.round || 0;
-  if(r===0 && S.builtRound){ S.celebrated = {}; S.builtRound = 0; S.myRound = 0; S.flushedRound = 0; if($("tvMain")) $("tvMain").dataset.k = ""; }
+  if(r===0 && (S.builtRound || S.tv)){ S.celebrated = {}; S.builtRound = 0; S.myRound = 0; S.flushedRound = 0; $("tvMain").dataset.k = ""; $("tvSkyA").dataset.k = ""; }
   if(r !== S.subRound){
     S.roundUnsubs.forEach(f=>f()); S.roundUnsubs=[]; S.subRound=r; S.answers={}; S.rejects={};
     if(r>0){
@@ -1240,81 +1332,77 @@ function qrSVG(text){
     return q.createSvgTag({ cellSize:8, margin:0, scalable:true });
   }catch{ return ""; }
 }
+function setSky(key, a, b){
+  const A = $("tvSkyA"), B = $("tvSkyB");
+  if(A.dataset.k === key) return false;
+  A.dataset.k = key; A.innerHTML = a; B.innerHTML = b; return true;
+}
+function setSun(text, back){
+  const el = $("tvSun");
+  if(el.textContent !== text){ el.textContent = text; }
+  el.classList.toggle("back", !!back);
+}
 function renderTV(){
   if(!S.tv || !S.meta) return;
   show("tv");
   const m = S.meta, phase = m.phase;
-  $("tvRound").textContent = phase==="final" ? "النتيجة النهائية 🏆" : m.round ? `الجولة ${m.round} من ${maxRounds(m)}` : "";
+  $("tvRound").textContent = phase==="final" ? "النتيجة النهائية" : m.round ? `الجولة ${m.round} من ${maxRounds(m)}` : "بانتظار البداية";
   const main = $("tvMain"), side = $("tvSide");
   const players = Object.entries(S.players).sort((a,b)=>(a[1].joined||0)-(b[1].joined||0));
+  const online = players.filter(([,p])=>p.online).length;
 
   if(phase==="lobby"){
     const link = roomLink(S.code);
-    const key = "lobby:"+S.code;
-    if(main.dataset.k !== key){
-      main.dataset.k = key;
-      main.innerHTML = `
-        <div class="tvpanel">
-          <div class="tv-join">
-            <div class="qr" role="img" aria-label="رمز QR للدخول">${qrSVG(link)}</div>
-            <div style="display:flex;flex-direction:column;gap:1vh;min-width:0">
-              <div class="tvtitle">امسحوا الكود من جوالاتكم 📱</div>
-              <div class="tvcode">${esc(S.code)}</div>
-              <div class="tvurl">${esc(link.replace(/^https?:\/\//,""))}</div>
-            </div>
-          </div>
-        </div>
-        <div class="tvpanel grow" id="tvLobbyBottom"></div>`;
-    }
+    setSun("؟", false);
+    setSky("lobby:"+S.code,
+      `<div class="skycard"><div class="qr" role="img" aria-label="رمز QR للدخول">${qrSVG(link)}</div>
+        <div style="min-width:0"><div class="tvcode">${esc(S.code)}</div><div class="tvurl">${esc(link.replace(/^https?:\/\//,"").replace(/\?.*$/,""))}</div></div></div>`,
+      `<div class="skynote">امسحوا الكود وادخلوا<small>بجوالاتكم · كل واحد يختار اسمه وأيقونته</small></div>`);
+    main.dataset.k = "lobby";
+    main.innerHTML = `<div class="tvpanel grow"><div class="tvhead"><div class="tvtitle">اللاعبين</div><span class="tvtitle">${online}</span></div>
+      <div class="tvppl">${players.map(([pid,p]) => `<div class="pp">${avatar(pid,p.name,{off:!p.online, crown:pid===m.host})}<span class="nm">${esc(p.name)}</span></div>`).join("") || '<p class="muted" style="font-weight:700">ما أحد دخل للحين.</p>'}</div></div>`;
     const played = Object.keys(S.results||{}).length>0;
-    const bottom = $("tvLobbyBottom");
     if(played){
-      bottom.innerHTML = `<div class="tvtitle">الترتيب 🏆</div><ol class="board tvboard">${boardHTML(standings().slice(0,5),true)}</ol>`;
-      growBars(bottom);
+      side.innerHTML = `<div class="tvtitle">الترتيب</div><ol class="board tvboard">${boardHTML(standings().slice(0,6),true)}</ol>`;
+      growBars(side);
     }else{
-      bottom.innerHTML = `<div class="tvbanner">بانتظار المضيف يبدأ… 🎲</div><p style="text-align:center;font-weight:700;font-size:1.2em" class="muted">حرف واحد، عشرة أسئلة.<br>أول واحد يعبّي كل الخانات يقول خلصت وتوقف الجولة عند الكل.</p>`;
+      side.innerHTML = `<div class="tvtitle">طريقة اللعب</div>
+        <ol class="tvrules"><li>يطلع حرف وعشرة أسئلة لكل الناس</li><li>كل إجابة لازم تبدأ بالحرف</li><li><span>أول واحد يعبّي العشر يضغط <b>خلصت</b> وتوقف الجولة</span></li><li>الإجابة الفريدة ١٠، المكررة ٥</li></ol>`;
     }
-    const online = players.filter(([,p])=>p.online).length;
-    side.innerHTML = `<div class="tvhead"><div class="tvtitle">اللاعبين</div><span class="tvtitle" style="font-size:1.8em">${online}</span></div>
-      <div class="tvppl">${players.map(([pid,p]) => `<div class="pp">${avatar(pid,p.name,{off:!p.online, crown:pid===m.host})}<span class="nm">${esc(p.name)}</span></div>`).join("") || '<p class="muted" style="font-weight:700">ما أحد دخل للحين.</p>'}</div>`;
   }
   else if(phase==="play"){
     const key = "play:"+m.round;
-    if(main.dataset.k !== key){
-      main.dataset.k = key; S.tvRevealed = false; S.lastCount = null;
-      main.innerHTML = `
-        <div class="tvpanel grow">
-          <div class="tvplayrow">
-            <div id="tvLetter" class="letter back tvletter">؟</div>
-            <div class="ring tvring" id="tvRing">
-              <svg viewBox="0 0 100 100" aria-hidden="true"><circle class="edge" cx="50" cy="50" r="48"/><circle class="bg" cx="50" cy="50" r="40"/><circle class="fg" id="tvRingFg" cx="50" cy="50" r="40" stroke-dasharray="251.3" stroke-dashoffset="0"/></svg>
-              <span class="t" id="tvTimer">${fmt(m.duration||90)}</span>
-            </div>
-          </div>
-          <ol class="tvprompts" id="tvPrompts">${arr(m.prompts).map((p,i)=>`<li><span class="num">${i+1}</span><span>؟؟؟</span></li>`).join("")}</ol>
-        </div>`;
+    if(setSky(key,
+      `<div class="ring tvring" id="tvRing"><svg viewBox="0 0 100 100" aria-hidden="true"><circle class="edge" cx="50" cy="50" r="48"/><circle class="bg" cx="50" cy="50" r="40"/><circle class="fg" id="tvRingFg" cx="50" cy="50" r="40" stroke-dasharray="251.3" stroke-dashoffset="0"/></svg><span class="t" id="tvTimer">${fmt(m.duration||90)}</span></div>`,
+      `<div class="skynote">كل الإجابات تبدأ بهالحرف<small>أول واحد يعبّي العشر يقول خلصت</small></div>`)){
+      S.tvRevealed = false; S.lastCount = null; setSun("؟", true);
+      main.dataset.k = key;
+      main.innerHTML = `<div class="tvpanel grow"><ol class="tvprompts" id="tvPrompts">${arr(m.prompts).map((p,i)=>`<li><span class="num">${i+1}</span><span>؟؟؟</span></li>`).join("")}</ol></div>`;
     }
     const list = raceList().filter(x => S.players[x.pid] && S.players[x.pid].online);
-    side.innerHTML = `<div class="tvtitle">مين قرّب يخلص؟ 🏁</div><ol class="tvrace">${list.map(x=>`
+    side.innerHTML = `<div class="tvtitle">مين قرّب يخلص؟</div><ol class="tvrace">${list.map(x=>`
       <li class="${x.n>=Q?"full":""}">${avatar(x.pid,x.name)}<span class="track"><i style="--c:${colorOf(x.pid)};width:${x.n/Q*100}%"></i><span>${esc(x.name)}</span></span><b>${x.n}/${Q}</b></li>`).join("")}</ol>`;
     tickTV();
   }
   else if(phase==="final"){
     const list = standings();
+    setSun("🏆", false);
+    setSky("final:"+m.round, `<div class="skynote">${list[0] ? `مبروك ${esc(list[0].name)}!` : ""}<small>بعد ${m.round} جولات</small></div>`, `<div class="skynote">لعبة جديدة؟<small>المضيف يقدر يبدأ من جواله</small></div>`);
     main.dataset.k = "final:"+m.round;
-    main.innerHTML = `<div class="tvpanel grow" style="justify-content:flex-end"><div class="tvbanner" style="padding:0">${list[0] ? `مبروك ${esc(list[0].name)}! 🎉` : ""}</div><div class="podium">${podiumHTML(list, true)}</div></div>`;
+    main.innerHTML = `<div class="tvpanel grow" style="justify-content:flex-end"><div class="podium">${podiumHTML(list, true)}</div></div>`;
     side.innerHTML = `<div class="tvtitle">الترتيب النهائي</div><ol class="board tvboard">${boardHTML(list.slice(0,7),true)}</ol>`;
     growBars(side);
   }
   else if(phase==="review"){
     const { pts, detail, pids } = computeRound();
+    setSun(m.letter, false);
+    setSky("review:"+m.round, `<div class="skycard" style="font-weight:800;font-size:1.6em">${esc(stopText(m))}</div>`, `<div class="skynote">نشوف الإجابات<small>الحَكَم يقبل أو يرفض من جواله</small></div>`);
     const key = "review:"+m.round;
     if(main.dataset.k !== key){ main.dataset.k = key; S.tvSpot = 0; }
     const qi = S.tvSpot % Q;
     const p = arr(m.prompts)[qi];
     const answers = pids.map(pid => ({ pid, ...detail[qi][pid] }));
     main.innerHTML = `
-      <div class="stopbar"><div><div class="who">${esc(stopText(m))}</div><strong>نشوف الإجابات 👀</strong></div><span class="lt">${esc(m.letter)}</span></div>
       <div class="tvpanel grow spot">
         <h3><span class="num">${qi+1}</span>${esc(p)}</h3>
         <div class="answers">${answers.length ? answers.map((a,i)=>{
@@ -1330,15 +1418,15 @@ function renderTV(){
   }
 }
 function tickTV(){
-  const m = S.meta; if(!S.tv || !m || m.phase!=="play" || !$("tvLetter")) return;
-  const now = S.db.now(), L = $("tvLetter");
+  const m = S.meta; if(!S.tv || !m || m.phase!=="play" || !$("tvRing")) return;
+  const now = S.db.now(), L = $("tvSun");
   if(now < m.startAt){
     const n = Math.ceil((m.startAt-now)/1000);
-    if(n !== S.lastCount){ S.lastCount = n; L.textContent = n; L.classList.remove("tick"); void L.offsetWidth; L.classList.add("tick"); Sound.beep(); }
+    if(n !== S.lastCount){ S.lastCount = n; L.textContent = n; L.classList.add("back"); L.classList.remove("tick"); void L.offsetWidth; L.classList.add("tick"); Sound.beep(); }
     return;
   }
   if(!S.tvRevealed){
-    S.tvRevealed = true; L.className = "letter tvletter flip"; L.textContent = m.letter; Sound.reveal();
+    S.tvRevealed = true; L.className = "letter tvsun flip"; L.textContent = m.letter; Sound.reveal();
     $$("#tvPrompts li span:last-child").forEach((s,i) => s.textContent = arr(m.prompts)[i]);
   }
   const total = (m.endsAt - m.startAt)/1000;
