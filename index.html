@@ -301,7 +301,7 @@ input{background:var(--paper);border-color:#E2CDB2}
 /* hero: the letter is the sun setting over the dunes */
 .hero{display:flex;flex-direction:column;align-items:center;gap:18px;padding-top:0;margin-top:-18px;grid-template-columns:none}
 .hero h1{color:#FFF8EE;text-shadow:0 2px 0 #8E4527,0 0 18px rgba(142,69,39,.35);font-size:clamp(2.2rem,10vw,2.9rem);text-align:center}
-.intro{color:var(--ink-2);font-weight:700;text-align:center;max-width:36ch;margin:40px auto 0}
+.intro{color:var(--ink-2);font-weight:700;text-align:center;max-width:36ch;margin:6px auto 0}
 .sun,.letter{background:var(--sun);color:#FFF8EE;box-shadow:0 0 0 12px rgba(201,96,63,.16),0 0 0 26px rgba(201,96,63,.08)}
 .sun::after,.letter::after{display:none}
 .letter.back{background:var(--ink);color:#FFF8EE;box-shadow:0 0 0 12px rgba(59,36,22,.12),0 0 0 26px rgba(59,36,22,.06)}
@@ -371,6 +371,86 @@ body.tv .wrap{padding:0}
 .tvrace .track{border:1.5px solid #E4CFB3}
 .tvrace .track i{background:color-mix(in srgb,var(--c) 45%,#fff)}
 
+/* ================= Bold party game (outlines + hard shadows) over the desert ================= */
+:root{--b:3px solid var(--ink); --hs:4px 4px 0 var(--ink)}
+.card,.roombox,.qcard,.banner,.stopbar,.tvpanel,.skycard{border:var(--b);border-radius:18px;box-shadow:5px 5px 0 var(--ink)}
+.roombox{background:var(--ink);color:#FFF8EE;padding-bottom:16px}
+.roombox::after{display:none}
+.roombox .lbl{color:#E9CDB3}
+.roombox .codebig{color:#F6C9A8;margin-bottom:4px}
+.roombox .row{background:transparent}
+.roombox button,.roombox .btn{background:#FFF8EE;color:var(--ink);border:3px solid #000;box-shadow:3px 3px 0 #000}
+.roombox #shareBtn{background:var(--pen);color:#FFF8EE;border:3px solid #000;box-shadow:3px 3px 0 #000}
+button,.btn{border:var(--b);border-radius:14px;box-shadow:3px 3px 0 var(--ink);font-weight:800}
+button:active:not(:disabled),.btn:active{transform:translate(3px,3px);box-shadow:0 0 0 var(--ink)}
+.pink,.blue,.big.pink{border:var(--b);border-radius:14px;box-shadow:var(--hs)}
+.big{font-size:1.35rem;padding:13px 18px}
+.flat{border:2px solid var(--ink);box-shadow:none;color:var(--ink);border-radius:12px}
+.icon-btn{border:var(--b);border-radius:12px;box-shadow:2px 2px 0 var(--ink);background:#FFF8EE}
+.seg{background:transparent;padding:0;gap:6px;border:0}
+.seg button{border:2px solid var(--ink);box-shadow:none;background:#FFF8EE;color:var(--ink);border-radius:12px;padding:8px}
+.seg button[aria-pressed="true"]{background:var(--ink);color:#FFF8EE;box-shadow:none}
+input{border:var(--b);border-radius:12px;background:var(--sun-soft)}
+input:focus{background:#fff;border-color:var(--ink);box-shadow:0 0 0 4px rgba(201,96,63,.30)}
+.or{color:var(--ink)}
+.or::before,.or::after{height:2px;background:var(--ink);opacity:.15}
+/* hero: tilted word blocks sitting on the dunes, the letter-sun above */
+.hero h1{font-size:clamp(2.2rem,10.5vw,3rem);line-height:1.08;text-shadow:none}
+.hero h1 .w{display:inline-block;padding:.02em .28em .1em;border:var(--b);border-radius:14px;box-shadow:var(--hs);margin:.08em .04em;color:var(--ink);background:#FFF8EE}
+.hero h1 .w1{transform:rotate(-3deg);background:var(--pen);color:#FFF8EE}
+.hero h1 .w2{transform:rotate(2deg);background:#FFF8EE}
+.hero h1 .w3{transform:rotate(-1.5deg);background:var(--sage);color:#FFF8EE}
+.hero{gap:20px}
+.sun,.letter{border:var(--b);box-shadow:6px 6px 0 var(--ink)}
+.letter.back{box-shadow:6px 6px 0 rgba(59,36,22,.35)}
+.letter.tick,.sun.tick{animation:tickp .3s ease}
+.brand i{border:2.5px solid var(--ink);border-radius:10px;transform:rotate(-6deg);box-shadow:2px 2px 0 var(--ink)}
+.topbar .brand{color:var(--ink);text-shadow:none}
+/* answer sheet: one chunky card per question */
+.sheet{background:transparent;border:0;box-shadow:none;padding:0;display:flex;flex-direction:column;gap:10px}
+.sheet li{background:var(--sheet);border:var(--b);border-radius:16px;box-shadow:3px 3px 0 var(--ink);padding:10px 12px;align-items:center}
+.sheet li:last-child{border-bottom:var(--b)}
+.num{border:2.5px solid var(--ink);background:var(--sun-soft);color:var(--ink)}
+.sheet li.done .num{background:var(--sage);border-color:var(--ink);color:#fff}
+.q input{border:2.5px solid var(--edge);border-radius:10px;padding:6px 10px;background:var(--paper);font-size:1.15rem}
+.q input:focus{border-color:var(--ink);background:#fff}
+.q input.okl{border-color:var(--sage);background:var(--sage-soft)}
+.donebtn{border:var(--b);border-radius:16px;box-shadow:5px 5px 0 var(--ink);font-size:1.6rem}
+.donebtn:not(:disabled){animation:wiggle 1.4s ease-in-out infinite}
+.donebtn:disabled{border:var(--b);box-shadow:3px 3px 0 var(--ink);background:#F1E6D6}
+@keyframes wiggle{0%,100%{transform:rotate(0)}10%{transform:rotate(-2deg)}20%{transform:rotate(2deg)}30%{transform:rotate(0)}}
+.ring{border:var(--b);box-shadow:4px 4px 0 var(--ink)}
+.chip{border:2px solid var(--ink)}
+.chip .av{box-shadow:none}
+.av{border:2.5px solid var(--ink)}
+.ic{border:2px solid var(--ink);box-shadow:2px 2px 0 var(--ink);background:#FFF8EE;border-radius:12px}
+.ic[aria-pressed="true"]{background:var(--pen-soft);border:2.5px solid var(--ink);transform:translateY(-2px);box-shadow:3px 3px 0 var(--ink)}
+.ic:disabled{box-shadow:none}
+/* leaderboards: one card per row */
+.board{background:transparent;border:0;box-shadow:none;padding:0;gap:8px}
+.board li{background:var(--sheet);border:var(--b);border-radius:14px;box-shadow:2px 2px 0 var(--ink);border-top:var(--b);padding:8px 12px}
+.board li:first-child{border-top:var(--b)}
+.board li.first{background:var(--pen-soft)}
+.board .rk{border:2px solid var(--ink)}
+.barwrap{height:9px;border:2px solid var(--ink)}
+.stopbar .lt{border:var(--b);box-shadow:3px 3px 0 var(--ink)}
+.qcard h4{border-bottom:var(--b);background:var(--sun-soft)}
+.qcard h4 .num{background:#FFF8EE}
+.ans{border:2px solid transparent}
+.ans.ok{border-color:var(--sage)} .ans.dup{border-color:var(--sand)}
+.pod .block{border:var(--b);box-shadow:4px 4px 0 var(--ink)}
+.toast{border:var(--b)}
+/* TV */
+.tvpanel{border-width:4px;box-shadow:7px 7px 0 var(--ink);border-radius:26px}
+.tvround{border:var(--b);border-radius:14px;box-shadow:3px 3px 0 var(--ink)}
+.tvtop .brand{color:var(--ink);text-shadow:none}
+.tvboard li{box-shadow:2px 2px 0 var(--ink)}
+.tvprompts li{background:var(--sun-soft);border:2.5px solid var(--ink);border-radius:14px;margin-bottom:1vh;padding:.35em .6em}
+.tvprompts{gap:0 1.2vw}
+.tvrace .track{border:2.5px solid var(--ink)}
+.spot .a{border:2.5px solid var(--ink);box-shadow:3px 3px 0 var(--ink)}
+.tvrules li::before{border-width:2.5px;background:var(--sun-soft)}
+
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
 </style>
 </head>
@@ -387,7 +467,7 @@ body.tv .wrap{padding:0}
     <div class="topbar"><span></span><button class="icon-btn sound-btn" type="button" aria-label="الصوت">🔊</button></div>
     <div class="hero">
       <div class="sun" id="heroSun" aria-hidden="true">؟</div>
-      <h1>يبدأ بحرف الـ…</h1>
+      <h1><span class="w w1">يبدأ</span> <span class="w w2">بحرف</span><br><span class="w w3">الـ…</span></h1>
     </div>
     <p class="intro">حرف واحد، عشرة أسئلة. أول واحد يعبّي كل الخانات يقول <b>خلصت</b> وتوقف الجولة عند الكل.</p>
     <div class="card">
