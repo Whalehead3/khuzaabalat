@@ -544,9 +544,15 @@ function norm(s){
     .replace(/\s+/g," ").toLowerCase();
 }
 function core(s){ const n=norm(s); return (n.startsWith("ال") && n.length>3) ? n.slice(2) : n; }
+/* A real word: at least 2 letters (not counting "ال") and not one letter repeated, e.g. "ب" or "ببب" */
+function isWord(ans){
+  let w = norm(ans).replace(/[^\u0621-\u064A\u0660-\u0669a-z0-9]/g,"");
+  if(w.startsWith("ال")) w = w.slice(2);
+  return w.length >= 2 && new Set(w).size > 1;
+}
 function startsOK(ans, letter){
   const n=norm(ans), L=norm(letter);
-  if(!n) return false;
+  if(!isWord(ans)) return false;
   return n.startsWith(L) || (n.startsWith("ال") && n.slice(2).startsWith(L));
 }
 
@@ -655,7 +661,7 @@ function computeRound(){
       const text = arr(S.answers[pid])[qi].trim();
       const auto = startsOK(text, L);
       const ov = rej[qi+"_"+pid];
-      const ok = ov==="ok" ? !!norm(text) : ov==="no" ? false : auto;
+      const ok = !isWord(text) ? false : ov==="ok" ? true : ov==="no" ? false : auto;
       detail[qi][pid] = { text, ok, auto };
       if(ok){ const k=core(text); groups[k]=(groups[k]||0)+1; }
     }
@@ -882,8 +888,8 @@ function reveal(){
   const m = S.meta; S.revealed = true;
   const L = $("letter"); L.className = "letter flip"; L.textContent = m.letter;
   Sound.reveal();
-  arr(m.prompts).forEach((p,i) => { $("p"+i).textContent = p; const el=$("a"+i); el.disabled=false; el.placeholder = "يبدأ بـ " + m.letter; el.classList.toggle("okl", startsOK(el.value, m.letter)); $("li"+i).classList.toggle("done", !!S.my[i].trim()); });
-  const first = S.my.findIndex(v => !v.trim());
+  arr(m.prompts).forEach((p,i) => { $("p"+i).textContent = p; const el=$("a"+i); el.disabled=false; el.placeholder = "يبدأ بـ " + m.letter; el.classList.toggle("okl", startsOK(el.value, m.letter)); $("li"+i).classList.toggle("done", isWord(S.my[i])); });
+  const first = S.my.findIndex(v => !isWord(v));
   const el = $("a" + (first<0 ? 0 : first)); if(el) el.focus({preventScroll:true});
   updateDone();
 }
@@ -913,11 +919,11 @@ function tick(){
 }
 setInterval(tick, 250);
 
-function filled(){ return S.my.filter(v => v.trim()).length; }
+function filled(){ return S.my.filter(isWord).length; }
 function updateDone(){
   const n = filled();
   $("doneBtn").disabled = !S.revealed || n<Q || !S.meta || S.meta.phase!=="play";
-  if(S.revealed) $("doneHint").textContent = n<Q ? `عبّيت ${n} من ${Q}. عبّ الكل عشان تقدر تقول خلصت.` : "جاهز! اضغط خلصت ✋";
+  if(S.revealed) $("doneHint").textContent = n<Q ? `عبّيت ${n} من ${Q}. عبّ الكل بكلمات كاملة (مو حرف واحد) عشان تقدر تقول خلصت.` : "جاهز! اضغط خلصت ✋";
   if(n !== S.lastN && S.meta && S.meta.phase==="play"){
     S.lastN = n;
     S.db.set(`${base()}/progress/${S.pid}`, { r:S.myRound, n });
@@ -928,7 +934,7 @@ $("sheet").addEventListener("input", e => {
   const i = +el.dataset.i;
   S.my[i] = el.value;
   el.classList.toggle("okl", startsOK(el.value, S.meta && S.meta.letter));
-  $("li"+i).classList.toggle("done", !!el.value.trim());
+  $("li"+i).classList.toggle("done", isWord(el.value));
   Sound.type();
   clearTimeout(S.saveT); S.saveT = setTimeout(save, 500);
   updateDone();
@@ -937,7 +943,7 @@ function goNext(i){
   /* jump to the next empty box (wrapping around); if all are filled, go to خلصت */
   for(let k=1;k<=Q;k++){
     const j = (i+k) % Q, el = $("a"+j);
-    if(el && !el.disabled && !S.my[j].trim()){ el.focus({preventScroll:true}); el.scrollIntoView({block:"center", behavior:"smooth"}); return; }
+    if(el && !el.disabled && !isWord(S.my[j])){ el.focus({preventScroll:true}); el.scrollIntoView({block:"center", behavior:"smooth"}); return; }
   }
   const d = $("doneBtn"); if(!d.disabled){ document.activeElement && document.activeElement.blur(); d.scrollIntoView({block:"center", behavior:"smooth"}); }
 }
@@ -1015,7 +1021,7 @@ function renderReview(){
 $("qcards").addEventListener("click", e => {
   const b = e.target.closest("button.ans"); if(!b || !isHost() || !S.detail) return;
   const qi = +b.dataset.q, pid = b.dataset.p, d = S.detail[qi] && S.detail[qi][pid];
-  if(!d || !d.text) return;
+  if(!d || !isWord(d.text)) return;
   const want = d.ok ? "no" : "ok";
   const path = `${base()}/rejects/r${S.meta.round}/${qi}_${pid}`;
   Sound.pop();
