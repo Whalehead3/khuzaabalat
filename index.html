@@ -443,16 +443,21 @@ const FUN = [
  {q:"شيء ناعم", not:"تعلنهي"}, {q:"شيء في الكشتة", only:"جحخدرشفقكمن"}, {q:"شيء في السماء", only:"برزسشصطعقكمنه"},
  {q:"تطبيق في الجوال", only:"اتجزسشطفكلمنهوي"}, {q:"شخصية كرتونية", only:"بتجدسشعفكلمهو"}, {q:"شيء أحمر", only:"بتدرشطفكو"},
  {q:"شيء في المدرسة", only:"ابجحدسشصطعفقكلم"}, {q:"شيء في العرس", only:"بحدرزشطعفقكم"}, {q:"شيء ثقيل", only:"بجحدسشصطفقكم"},
- {q:"حشرة", only:"بجخدزصعفقن"}, {q:"لون", only:"ابرزسفكنل"}, {q:"شيء في البحر", only:"احسقردمصشلج"}
+ {q:"حشرة", only:"بجخدزصعفقن"}, {q:"لون", only:"ابرزسفكنل"}, {q:"شيء في البحر", only:"احسقردمصشلج"},
+ {q:"جملة تقولها لما تتصل أمك"}, {q:"عذر لما ما تبي تطلع"}, {q:"شيء تسويه لما تمل"}, {q:"اسم أغنية أو مغني"},
+ {q:"مثل شعبي"}, {q:"لاعب كرة"}, {q:"شيء تكذب فيه"}, {q:"رسالة ترسلها في القروب"},
+ {q:"اسم مطعم أو كوفي", only:"ابتدرسشفكمه"}, {q:"شيء تلقاه تحت الكنب", only:"بجرشفقكلم"},
+ {q:"كلمة إنجليزية نقولها بالعامية", only:"ابتجدرسشفكلمنهوي"}, {q:"شيء له ريحة", only:"ببزشعفقكنهوري"}
 ];
 const fits = (f,L) => f.only ? f.only.includes(L) : !(f.not||"").includes(L);
 /* How many of each kind per level: [classic, broad, hard] */
 const LEVELS = { easy:[6,4,0], hard:[0,0,10] };
 function pickPrompts(letter, level){
   if(!LEVELS[level]){
-    /* random (default): any 10 questions from the whole pool that work with this letter */
-    const all = [...CORE, ...EXTRA, ...FUN.filter(f => fits(f,letter)).map(f => f.q)];
-    return shuffle(all).slice(0,Q);
+    /* random (default): 6 tricky questions + 4 from the classic/general pool, all matched to the letter */
+    const tricky = shuffle(FUN.filter(f => fits(f,letter)).map(f => f.q)).slice(0,6);
+    const plain = shuffle([...CORE, ...EXTRA]).slice(0, Q - tricky.length);
+    return shuffle([...tricky, ...plain]);
   }
   const [c,b,h] = LEVELS[level] || LEVELS.normal;
   const hard = shuffle(FUN.filter(f => fits(f,letter)).map(f => f.q)).slice(0,h);
