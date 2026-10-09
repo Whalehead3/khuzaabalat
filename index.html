@@ -343,7 +343,7 @@ body.tv .stopbar .lt{font-size:3.4em}
         <span id="levelLbl" style="font-size:.9rem;font-weight:700">صعوبة الأسئلة</span>
         <div class="seg" id="levelSeg" role="group" aria-labelledby="levelLbl">
           <button type="button" data-l="easy">سهلة</button>
-          <button type="button" data-l="normal">متوسطة</button>
+          <button type="button" data-l="random">عشوائية 🎲</button>
           <button type="button" data-l="hard">صعبة 🔥</button>
         </div>
       </div>
@@ -447,8 +447,13 @@ const FUN = [
 ];
 const fits = (f,L) => f.only ? f.only.includes(L) : !(f.not||"").includes(L);
 /* How many of each kind per level: [classic, broad, hard] */
-const LEVELS = { easy:[6,4,0], normal:[2,2,6], hard:[0,0,10] };
+const LEVELS = { easy:[6,4,0], hard:[0,0,10] };
 function pickPrompts(letter, level){
+  if(!LEVELS[level]){
+    /* random (default): any 10 questions from the whole pool that work with this letter */
+    const all = [...CORE, ...EXTRA, ...FUN.filter(f => fits(f,letter)).map(f => f.q)];
+    return shuffle(all).slice(0,Q);
+  }
   const [c,b,h] = LEVELS[level] || LEVELS.normal;
   const hard = shuffle(FUN.filter(f => fits(f,letter)).map(f => f.q)).slice(0,h);
   const broad = shuffle(EXTRA).slice(0, b + (h - hard.length));
@@ -681,7 +686,7 @@ async function enter(code, asHost){
     S.code = code; S.name = name;
     S.pid = store.get("kz_pid_"+code) || rid();
     store.set("kz_pid_"+code, S.pid);
-    if(asHost) await db.set(`${base()}/meta`, { host:S.pid, created:db.now(), phase:"lobby", round:0, duration:90, maxRounds:MAX_ROUNDS_DEFAULT, level:"normal" });
+    if(asHost) await db.set(`${base()}/meta`, { host:S.pid, created:db.now(), phase:"lobby", round:0, duration:90, maxRounds:MAX_ROUNDS_DEFAULT, level:"random" });
     const pp = `${base()}/players/${S.pid}`;
     const existing = await db.get(pp);
     await db.update(pp, { name, joined:(existing && existing.joined) || db.now(), online:true });
@@ -796,7 +801,7 @@ function renderLobby(){
   $("startBtn").textContent = !m.round ? `ابدأ الجولة الأولى من ${maxRounds(m)} 🎲` : last ? "ابدأ الجولة الأخيرة 🔥" : `ابدأ الجولة ${m.round+1} من ${maxRounds(m)} 🎲`;
   const d = String(m.duration || 90);
   $$("#durSeg button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.d===d)));
-  const lv = m.level || "normal";
+  const lv = LEVELS[m.level] ? m.level : "random";
   $$("#levelSeg button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.l===lv)));
   const mr = String(maxRounds(m));
   $$("#roundsSeg button").forEach(b => { b.setAttribute("aria-pressed", String(b.dataset.n===mr)); b.disabled = (m.round||0) > 0 && b.dataset.n!==mr; });
@@ -835,7 +840,7 @@ $("startBtn").addEventListener("click", async () => {
     if(!pool.length){ pool = LETTERS.slice(); used = {}; }
     const letter = pool[rnd(pool.length)];
     used[letter] = true;
-    const prompts = pickPrompts(letter, m.level || "normal");
+    const prompts = pickPrompts(letter, m.level || "random");
     const dur = m.duration || 90;
     const now = S.db.now();
     await S.db.update(`${base()}/meta`, {
