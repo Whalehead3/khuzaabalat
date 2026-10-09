@@ -1,0 +1,719 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>إنسان حيوان خزعبلات</title>
+<meta name="description" content="العبوا إنسان حيوان خزعبلات أونلاين مع أصحابكم: حرف واحد، عشرة أسئلة، وأول واحد يخلص يقول خلصت.">
+<meta property="og:title" content="إنسان حيوان خزعبلات">
+<meta property="og:description" content="ادخل الغرفة والعب معنا!">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lalezar&family=IBM+Plex+Sans+Arabic:wght@400;600;700&display=swap">
+<style>
+/* Layout: one phone-width column; each game phase (home, lobby, play, review) is its own section */
+:root{
+  --bg:#EEF2F8; --surface:#FFFFFF; --ink:#16203A; --muted:#5D6886; --line:#D6DDEA;
+  --pink:#E2386C; --pink-soft:#FCE3EB; --sun:#FFC23A; --good:#1E9E6A; --good-soft:#DDF3EA; --bad:#C8384A; --bad-soft:#F9E1E4; --dup:#B7791F; --dup-soft:#FBEFD9;
+  --display:"Lalezar","IBM Plex Sans Arabic",system-ui,sans-serif;
+  --body:"IBM Plex Sans Arabic",system-ui,-apple-system,"Segoe UI",Tahoma,sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){:root{
+  --bg:#10162A; --surface:#1A2240; --ink:#EEF1FA; --muted:#9AA4C2; --line:#2C3660;
+  --pink:#FF5C8E; --pink-soft:#3A1F33; --sun:#FFCD55; --good:#3CCB8D; --good-soft:#163A33; --bad:#FF6B7D; --bad-soft:#3D1E2A; --dup:#F0B65A; --dup-soft:#3A3020; color-scheme:dark}}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.5;-webkit-text-size-adjust:100%}
+.wrap{max-width:600px;margin:0 auto;padding-inline:16px;padding-block:calc(16px + env(safe-area-inset-top,0px)) calc(48px + env(safe-area-inset-bottom,0px))}
+section{display:flex;flex-direction:column;gap:16px}
+h1{font-family:var(--display);font-weight:400;font-size:clamp(2.2rem,9vw,3rem);margin:0;line-height:1.1;text-wrap:balance}
+h1 span{color:var(--pink)}
+h2,h3{font-family:var(--display);font-weight:400;margin:0;font-size:1.5rem;line-height:1.2}
+.lede{margin:0;color:var(--muted);max-width:40ch}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:16px;display:flex;flex-direction:column;gap:12px}
+label{font-size:.85rem;color:var(--muted);font-weight:600}
+.field{display:flex;flex-direction:column;gap:6px}
+input,select{font:1rem var(--body);padding:11px 12px;border:2px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink);width:100%;min-width:0}
+input:focus,select:focus{outline:none;border-color:var(--pink)}
+input.code{font-weight:700;font-size:1.3rem;letter-spacing:.25em;text-transform:uppercase;text-align:center;direction:ltr}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.row > input{flex:1}
+button{font:600 1rem var(--body);border:0;border-radius:10px;padding:11px 16px;cursor:pointer;color:var(--ink);background:var(--line);touch-action:manipulation}
+button:focus-visible,a:focus-visible{outline:3px solid var(--sun);outline-offset:2px}
+button:disabled{opacity:.45;cursor:not-allowed}
+.primary{background:var(--pink);color:#fff;font-size:1.15rem;padding:14px 18px;width:100%}
+.ghost{background:transparent;border:1px solid var(--line)}
+.small{font-size:.85rem;padding:7px 11px}
+.or{text-align:center;color:var(--muted);font-size:.85rem}
+.err{color:var(--bad);margin:0;font-weight:600;min-height:1.5em}
+.hint{font-size:.85rem;color:var(--muted);margin:0}
+
+/* lobby */
+.roomhead{background:var(--ink);color:var(--bg);border-radius:16px;padding:16px;display:flex;flex-direction:column;gap:10px}
+.roomhead .big{font:700 2.4rem/1 var(--body);letter-spacing:.2em;direction:ltr;text-align:center}
+.roomhead .lbl{font-size:.8rem;opacity:.75;text-align:center}
+.roomhead .row{justify-content:center}
+.roomhead button,.roomhead a.btn{background:var(--sun);color:#16203A}
+a.btn{display:inline-block;text-decoration:none;font-weight:600;border-radius:10px;padding:11px 16px}
+.plist{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;background:var(--surface);border:1px solid var(--line);border-radius:16px;overflow:hidden}
+.plist li{display:flex;align-items:center;gap:10px;padding:10px 14px;border-top:1px solid var(--line)}
+.plist li:first-child{border-top:0}
+.dot{width:10px;height:10px;border-radius:50%;background:var(--good);flex:none}
+.dot.off{background:var(--line)}
+.pname{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:600}
+.pname small{font-weight:400;color:var(--muted)}
+.badge{font-size:.72rem;font-weight:700;padding:2px 8px;border-radius:99px;background:var(--pink-soft);color:var(--pink);letter-spacing:.02em}
+.pts{font-variant-numeric:tabular-nums;font-weight:700;min-width:3ch;text-align:left}
+.rank{font-family:var(--display);color:var(--muted);width:1.6em;text-align:center}
+.plist li.top .rank{color:var(--pink)}
+.x{background:transparent;color:var(--muted);padding:4px 8px;font-size:1rem}
+.announce{background:var(--sun);color:#16203A;border-radius:14px;padding:12px 14px;font-weight:600}
+
+/* play */
+.stage{display:grid;grid-template-columns:auto 1fr;gap:16px;align-items:center}
+.card{width:110px;aspect-ratio:3/4;max-width:100%;border-radius:16px;background:var(--sun);color:#16203A;display:grid;place-items:center;
+  font-family:var(--display);font-size:5rem;line-height:1;box-shadow:0 6px 0 var(--ink);transition:transform .3s}
+.card.back{background:repeating-linear-gradient(45deg,var(--pink) 0 12px,#ff7aa0 12px 24px);color:#fff;font-size:4rem}
+.card.pop{animation:pop .45s ease}
+@keyframes pop{0%{transform:rotateY(90deg) scale(.8)}100%{transform:none}}
+.meta{display:flex;flex-direction:column;gap:6px;min-width:0}
+.round{font-size:.9rem;color:var(--muted);font-weight:600}
+.timer{font:700 2.6rem/1 var(--body);font-variant-numeric:tabular-nums;direction:ltr;text-align:right}
+.timer.low{color:var(--bad)}
+.bar{height:8px;background:var(--line);border-radius:4px;overflow:hidden}
+.bar i{display:block;height:100%;width:100%;background:var(--pink);transform-origin:right;transition:transform .25s linear}
+.race{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font-size:.8rem;padding:4px 10px;border-radius:99px;background:var(--surface);border:1px solid var(--line);white-space:nowrap;max-width:100%;overflow:hidden;text-overflow:ellipsis}
+.chip b{font-variant-numeric:tabular-nums;color:var(--pink)}
+.chip.full{background:var(--pink);color:#fff;border-color:var(--pink)}
+.chip.full b{color:#fff}
+.chip.me{border-color:var(--ink)}
+ol.sheet{list-style:none;margin:0;padding:0;background:var(--surface);border:1px solid var(--line);border-radius:16px;overflow:hidden}
+ol.sheet li{display:grid;grid-template-columns:2rem 1fr;gap:10px;align-items:center;padding:10px 12px;border-top:1px solid var(--line)}
+ol.sheet li:first-child{border-top:0}
+.n{font-family:var(--display);color:var(--pink);font-size:1.3rem;text-align:center}
+.q{display:flex;flex-direction:column;gap:4px;min-width:0}
+.q b{font-weight:600;font-size:.95rem}
+.q input{padding:8px 10px;border-width:1px}
+.q input.okl{border-color:var(--good)}
+.sticky{position:sticky;bottom:calc(10px + env(safe-area-inset-bottom,0px));z-index:5}
+.sticky .primary{box-shadow:0 6px 18px rgba(0,0,0,.18)}
+
+/* review */
+.stopbanner{background:var(--pink);color:#fff;border-radius:16px;padding:14px 16px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.stopbanner strong{font-family:var(--display);font-weight:400;font-size:1.6rem}
+.stopbanner .lt{font-family:var(--display);font-size:2.4rem;line-height:1;background:var(--sun);color:#16203A;border-radius:12px;padding:4px 14px}
+.qcard{background:var(--surface);border:1px solid var(--line);border-radius:16px;overflow:hidden}
+.qcard h4{margin:0;padding:10px 14px;display:flex;gap:8px;align-items:center;font-size:1rem;border-bottom:1px solid var(--line)}
+.qcard ul{list-style:none;margin:0;padding:6px;display:flex;flex-direction:column;gap:4px}
+.ans{display:grid;grid-template-columns:minmax(0,7rem) 1fr auto;gap:10px;align-items:center;padding:7px 10px;border-radius:10px;width:100%;text-align:right;font-weight:400;background:transparent;color:var(--ink)}
+.ans .who{color:var(--muted);font-size:.85rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ans .txt{font-weight:600;overflow-wrap:anywhere;min-width:0}
+.ans .pp{font-variant-numeric:tabular-nums;font-weight:700;font-size:.85rem;padding:2px 9px;border-radius:99px}
+.ans.ok{background:var(--good-soft)} .ans.ok .pp{background:var(--good);color:#fff}
+.ans.dup{background:var(--dup-soft)} .ans.dup .pp{background:var(--dup);color:#fff}
+.ans.bad .txt{text-decoration:line-through;color:var(--muted)} .ans.bad .pp{background:var(--line);color:var(--muted)}
+.ans.empty .txt{color:var(--muted);font-weight:400}
+button.ans{cursor:pointer}
+button.ans:hover{outline:1px solid var(--line)}
+.legend{display:flex;gap:12px;flex-wrap:wrap;font-size:.8rem;color:var(--muted)}
+.legend span::before{content:"";display:inline-block;width:10px;height:10px;border-radius:3px;margin-inline-end:5px;vertical-align:middle;background:var(--c)}
+.setup{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:16px;line-height:1.8}
+footer{margin-top:28px;text-align:center;font-size:.8rem;color:var(--muted)}
+@media (max-width:380px){.card{width:90px;font-size:4rem}.timer{font-size:2.1rem}.ans{grid-template-columns:minmax(0,5rem) 1fr auto}}
+@media (prefers-reduced-motion:reduce){.card,.bar i{transition:none}.card.pop{animation:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- SETUP NOTICE (no database configured) -->
+  <section id="setup" hidden>
+    <h1>إنسان حيوان <span>خزعبلات</span></h1>
+    <div class="setup">
+      <b>The game isn't connected to a database yet.</b><br>
+      Open <code>config.js</code> and paste your Firebase settings into it.
+    </div>
+  </section>
+
+  <!-- HOME -->
+  <section id="home" hidden>
+    <h1>إنسان حيوان <span>خزعبلات</span></h1>
+    <p class="lede">حرف واحد، عشرة أسئلة، دقيقة ونص. أول واحد يعبّي كل الخانات يقول خلصت، وتوقف الجولة عند الكل.</p>
+    <div class="panel">
+      <div class="field">
+        <label for="name">اسمك</label>
+        <input id="name" maxlength="20" autocomplete="nickname" placeholder="مثلاً: جيدا">
+      </div>
+      <div class="field">
+        <label for="joinCode">كود الغرفة</label>
+        <div class="row">
+          <input id="joinCode" class="code" maxlength="6" autocomplete="off" spellcheck="false" placeholder="ABCD">
+          <button id="joinBtn" type="button">ادخل</button>
+        </div>
+      </div>
+      <div class="or" id="orLine">أو</div>
+      <button id="createBtn" class="primary" type="button">سوّ غرفة جديدة وأنت المضيف</button>
+    </div>
+    <p class="err" id="homeErr" role="alert"></p>
+  </section>
+
+  <!-- LOBBY -->
+  <section id="lobby" hidden>
+    <div class="roomhead">
+      <div class="lbl">كود الغرفة</div>
+      <div class="big" id="roomCode">----</div>
+      <div class="row">
+        <button id="shareBtn" type="button">شارك الرابط</button>
+        <a id="waBtn" class="btn" href="#" target="_blank" rel="noopener">واتساب</a>
+      </div>
+      <div class="lbl" id="shareNote"></div>
+    </div>
+
+    <div id="lastWin" class="announce" hidden></div>
+
+    <div class="row" style="justify-content:space-between">
+      <h2 id="plistTitle">اللاعبين</h2>
+      <span class="hint" id="onlineCount"></span>
+    </div>
+    <ul id="plist" class="plist"></ul>
+
+    <div id="hostCtl" class="panel" hidden>
+      <div class="field">
+        <label for="dur">وقت الجولة</label>
+        <select id="dur">
+          <option value="60">دقيقة</option>
+          <option value="90" selected>دقيقة ونص</option>
+          <option value="120">دقيقتين</option>
+          <option value="180">ثلاث دقايق</option>
+        </select>
+      </div>
+      <button id="startBtn" class="primary" type="button">ابدأ الجولة</button>
+    </div>
+    <p id="waitHost" class="hint" hidden>بانتظار المضيف يبدأ الجولة…</p>
+    <button id="takeHost" class="ghost" type="button" hidden>المضيف طلع؟ خذ الإدارة</button>
+    <button id="leaveBtn" class="ghost small" type="button">اطلع من الغرفة</button>
+  </section>
+
+  <!-- PLAY -->
+  <section id="play" hidden>
+    <div class="stage">
+      <div id="card" class="card back" aria-live="polite">؟</div>
+      <div class="meta">
+        <span class="round" id="playRound">الجولة 1</span>
+        <div id="timer" class="timer">1:30</div>
+        <div class="bar"><i id="barFill"></i></div>
+      </div>
+    </div>
+    <div id="race" class="race" aria-label="تقدم اللاعبين"></div>
+    <ol id="sheet" class="sheet"></ol>
+    <div class="sticky">
+      <button id="doneBtn" class="primary" type="button" disabled>خلصت ✋</button>
+    </div>
+    <p class="hint" id="doneHint">عبّ الخانات العشر عشان تقدر تقول خلصت.</p>
+  </section>
+
+  <!-- REVIEW -->
+  <section id="review" hidden>
+    <div class="stopbanner">
+      <div>
+        <div id="stopWho" style="font-weight:600"></div>
+        <strong id="reviewRound">الجولة 1</strong>
+      </div>
+      <span class="lt" id="reviewLetter">ب</span>
+    </div>
+    <p class="hint" id="hostHint" hidden>أنت الحَكَم: اضغط على أي إجابة عشان ترفضها أو تقبلها.</p>
+    <div class="legend">
+      <span style="--c:var(--good)">إجابة فريدة 10</span>
+      <span style="--c:var(--dup)">مكررة 5</span>
+      <span style="--c:var(--line)">غلط أو فاضية 0</span>
+    </div>
+    <div id="qcards" style="display:flex;flex-direction:column;gap:12px"></div>
+    <h3>نتيجة الجولة</h3>
+    <ul id="roundBoard" class="plist"></ul>
+    <button id="commitBtn" class="primary" type="button" hidden>اعتمد النقاط</button>
+    <p id="reviewWait" class="hint" hidden>المضيف يراجع الإجابات…</p>
+  </section>
+
+  <footer>إنسان حيوان خزعبلات</footer>
+</div>
+
+<script src="config.js"></script>
+<script type="module">
+const LETTERS = "ا ب ت ج ح خ د ر ز س ش ص ط ع ف ق ك ل م ن ه و ي".split(" ");
+const PROMPTS = [
+ "اسم ولد","اسم بنت","حيوان","طائر","حشرة","شيء في المطبخ","شيء في المكتبة","أكلة","أكلة شعبية","مشروب",
+ "حلويات","فاكهة أو خضار","مدينة أو دولة","مهنة","لون","ماركة","شيء في الشنطة","شيء في الحمام","شخصية مشهورة",
+ "مسلسل أو فيلم","شيء تلبسه","شيء في السيارة","جزء من الجسم","شيء في البحر","شيء تلقاه في المول","شيء في السوبرماركت",
+ "أداة","شيء يطير","شيء ثقيل","مكان في البيت","شيء في الصيدلية","رياضة","لعبة","تطبيق في الجوال","كلمة تقولها لما تعصب",
+ "عذر للتأخير","شيء يخوّف","شيء ناعم","شيء في المكتب","نبات أو زهرة","صفة لشخص","فعل","شيء في الحديقة","آلة موسيقية",
+ "شيء في العرس","شيء في رمضان","شيء في الكشتة","شيء في السماء","شيء في المدرسة","شيء تهديه لأحد","شيء أحمر","شيء ينكسر",
+ "شيء في المستشفى","شيء في المطار","اسم عائلة","شيء في الثلاجة","شيء له ريحة","شيء في العيد","شيء في المقهى","شيء تسويه الصبح"
+];
+const Q = 10;
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const DEMO = new URLSearchParams(location.search).has("demo");
+const store = {
+  s(){ return DEMO ? sessionStorage : localStorage; },
+  get(k){ try { return this.s().getItem(k); } catch { return null; } },
+  set(k,v){ try { this.s().setItem(k,v); } catch {} }
+};
+const rnd = n => { const a = new Uint32Array(1); crypto.getRandomValues(a); return a[0] % n; };
+const rid = (n=12) => { const a="abcdefghijkmnpqrstuvwxyz23456789"; let s=""; for(let i=0;i<n;i++) s+=a[rnd(a.length)]; return s; };
+const newCode = () => { const a="ABCDEFGHJKMNPQRSTUVWXYZ23456789"; let s=""; for(let i=0;i<4;i++) s+=a[rnd(a.length)]; return s; };
+const shuffle = arr => { const a=arr.slice(); for(let i=a.length-1;i>0;i--){ const j=rnd(i+1); [a[i],a[j]]=[a[j],a[i]]; } return a; };
+const arr = v => Array.from({length:Q}, (_,i) => String((v||{})[i] ?? ""));
+const fmt = s => Math.floor(s/60) + ":" + String(s%60).padStart(2,"0");
+
+/* ---------- Arabic answer matching ---------- */
+function norm(s){
+  return String(s||"").trim()
+    .replace(/[ً-ْـ]/g,"")
+    .replace(/[أإآٱ]/g,"ا").replace(/ة/g,"ه").replace(/ى/g,"ي").replace(/ؤ/g,"و").replace(/ئ/g,"ي")
+    .replace(/\s+/g," ").toLowerCase();
+}
+function core(s){ const n=norm(s); return (n.startsWith("ال") && n.length>3) ? n.slice(2) : n; }
+function startsOK(ans, letter){
+  const n=norm(ans), L=norm(letter);
+  if(!n) return false;
+  return n.startsWith(L) || (n.startsWith("ال") && n.slice(2).startsWith(L));
+}
+
+/* ---------- database adapters ---------- */
+async function firebaseAdapter(conf){
+  const V = "10.12.2";
+  const { initializeApp } = await import(`https://www.gstatic.com/firebasejs/${V}/firebase-app.js`);
+  const F = await import(`https://www.gstatic.com/firebasejs/${V}/firebase-database.js`);
+  const d = F.getDatabase(initializeApp(conf));
+  let offset = 0;
+  F.onValue(F.ref(d, ".info/serverTimeOffset"), s => offset = s.val() || 0);
+  return {
+    now: () => Date.now() + offset,
+    get: async p => (await F.get(F.ref(d,p))).val(),
+    set: (p,v) => F.set(F.ref(d,p), v),
+    update: (p,v) => F.update(F.ref(d,p), v),
+    remove: p => F.remove(F.ref(d,p)),
+    on: (p,cb) => F.onValue(F.ref(d,p), s => cb(s.val())),
+    txn: async (p,fn) => (await F.runTransaction(F.ref(d,p), fn)).committed,
+    onDisconnect: (p,v) => F.onDisconnect(F.ref(d,p)).set(v),
+    onConnected: cb => F.onValue(F.ref(d, ".info/connected"), s => cb(!!s.val()))
+  };
+}
+/* Same-device demo store (tabs share localStorage). Used for testing with ?demo */
+function demoAdapter(){
+  const KEY = "kz_demo_db";
+  const load = () => { try { return JSON.parse(localStorage.getItem(KEY)) || {}; } catch { return {}; } };
+  let tree = load(); const ls = [];
+  const split = p => p.split("/").filter(Boolean);
+  const getAt = p => { let c = tree; for(const k of split(p)){ if(c==null || typeof c!=="object") return null; c = c[k]; } return c===undefined ? null : c; };
+  const setAt = (p,v) => {
+    const ks = split(p); v = v==null ? null : JSON.parse(JSON.stringify(v));
+    let c = tree; for(const k of ks.slice(0,-1)){ if(typeof c[k]!=="object" || c[k]===null) c[k]={}; c=c[k]; }
+    if(v===null) delete c[ks.at(-1)]; else c[ks.at(-1)] = v;
+  };
+  const notify = () => { for(const l of ls.slice()){ const j = JSON.stringify(getAt(l.p)); if(j!==l.j){ l.j=j; l.cb(JSON.parse(j)); } } };
+  const commit = () => { try { localStorage.setItem(KEY, JSON.stringify(tree)); } catch {} setTimeout(notify); };
+  addEventListener("storage", e => { if(e.key===KEY){ tree = load(); notify(); } });
+  return {
+    now: () => Date.now(),
+    get: async p => getAt(p),
+    set: async (p,v) => { tree=load(); setAt(p,v); commit(); },
+    update: async (p,o) => { tree=load(); for(const [k,v] of Object.entries(o)) setAt(p+"/"+k, v); commit(); },
+    remove: async p => { tree=load(); setAt(p,null); commit(); },
+    on: (p,cb) => { const l={p,cb,j:undefined}; ls.push(l); setTimeout(()=>{ l.j=JSON.stringify(getAt(p)); cb(JSON.parse(l.j)); }); return () => { const i=ls.indexOf(l); if(i>=0) ls.splice(i,1); }; },
+    txn: async (p,fn) => { tree=load(); const r = fn(JSON.parse(JSON.stringify(getAt(p)))); if(r===undefined) return false; setAt(p,r); commit(); return true; },
+    onDisconnect: () => {},
+    onConnected: cb => setTimeout(() => cb(true))
+  };
+}
+
+/* ---------- state ---------- */
+const S = {
+  db:null, code:null, pid:null, name:"",
+  meta:null, players:{}, progress:{}, results:{}, answers:{}, rejects:{},
+  unsubs:[], roundUnsubs:[], subRound:-1,
+  my:Array(Q).fill(""), myRound:0, builtRound:0, revealed:false, stopTried:false, flushedRound:0, lastN:-1, saveT:null,
+  detail:null
+};
+const base = () => `rooms/${S.code}`;
+const isHost = () => S.meta && S.meta.host === S.pid;
+const pname = pid => (S.players[pid] && S.players[pid].name) || "لاعب";
+const SECTIONS = ["setup","home","lobby","play","review"];
+function show(id){ for(const s of SECTIONS) $(s).hidden = s!==id; }
+function roomLink(code){
+  const u = new URL(location.href); u.search = ""; u.hash = "";
+  u.searchParams.set("room", code);
+  if(new URLSearchParams(location.search).has("demo")) u.searchParams.set("demo","1");
+  return u.toString();
+}
+function totals(){
+  const t = {};
+  for(const v of Object.values(S.results||{})){ if(!v) continue; for(const [pid,p] of Object.entries(v)) t[pid]=(t[pid]||0)+(+p||0); }
+  return t;
+}
+
+/* ---------- scoring ---------- */
+function computeRound(){
+  const m = S.meta, L = m.letter, rej = S.rejects || {};
+  const pids = Object.keys(S.answers || {});
+  pids.sort((a,b) => ((S.players[a]||{}).joined||0) - ((S.players[b]||{}).joined||0));
+  const pts = {}, detail = [];
+  for(const pid of pids) pts[pid] = 0;
+  for(let qi=0; qi<Q; qi++){
+    const groups = {}; detail[qi] = {};
+    for(const pid of pids){
+      const text = arr(S.answers[pid])[qi].trim();
+      const auto = startsOK(text, L);
+      const ov = rej[qi+"_"+pid];
+      const ok = ov==="ok" ? !!norm(text) : ov==="no" ? false : auto;
+      detail[qi][pid] = { text, ok, auto, ov:!!ov };
+      if(ok){ const k=core(text); groups[k]=(groups[k]||0)+1; }
+    }
+    for(const pid of pids){
+      const d = detail[qi][pid];
+      d.dup = d.ok && groups[core(d.text)] > 1;
+      d.pts = d.ok ? (d.dup ? 5 : 10) : 0;
+      pts[pid] += d.pts;
+    }
+  }
+  return { pts, detail, pids };
+}
+
+/* ---------- entering a room ---------- */
+async function enter(code, asHost){
+  const name = $("name").value.trim();
+  $("homeErr").textContent = "";
+  if(!name){ $("homeErr").textContent = "اكتب اسمك أول."; $("name").focus(); return; }
+  store.set("kz_name", name);
+  const db = S.db;
+  $("createBtn").disabled = $("joinBtn").disabled = true;
+  try{
+    if(asHost){
+      code = null;
+      for(let i=0;i<6 && !code;i++){ const c=newCode(); if(!(await db.get(`rooms/${c}/meta`))) code=c; }
+      if(!code) throw new Error("نفس الكود موجود، جرّب مرة ثانية.");
+    }else{
+      code = (code||"").toUpperCase().replace(/[^A-Z0-9]/g,"");
+      if(code.length<4){ $("homeErr").textContent = "اكتب كود الغرفة (٤ خانات)."; return; }
+      const m = await db.get(`rooms/${code}/meta`);
+      if(!m){ $("homeErr").textContent = "ما لقينا غرفة بهالكود. تأكد منه."; return; }
+    }
+    S.code = code; S.name = name;
+    S.pid = store.get("kz_pid_"+code) || rid();
+    store.set("kz_pid_"+code, S.pid);
+    if(asHost) await db.set(`${base()}/meta`, { host:S.pid, created:db.now(), phase:"lobby", round:0, duration:90 });
+    const pp = `${base()}/players/${S.pid}`;
+    const existing = await db.get(pp);
+    await db.update(pp, { name, joined:(existing && existing.joined) || db.now(), online:true });
+    db.onDisconnect(pp+"/online", false);
+    history.replaceState(null, "", roomLink(code));
+    subscribe();
+  }catch(e){
+    console.error(e);
+    $("homeErr").textContent = e.message && /[؀-ۿ]/.test(e.message) ? e.message : "صار خطأ في الاتصال. جرّب مرة ثانية.";
+  }finally{
+    $("createBtn").disabled = $("joinBtn").disabled = false;
+  }
+}
+function subscribe(){
+  const db = S.db, b = base();
+  S.unsubs.push(db.on(b+"/meta", m => { S.meta = m; onMeta(); }));
+  S.unsubs.push(db.on(b+"/players", p => { S.players = p || {}; renderLobby(); renderRace(); if(S.meta && S.meta.phase==="review") renderReview(); }));
+  S.unsubs.push(db.on(b+"/progress", p => { S.progress = p || {}; renderRace(); }));
+  S.unsubs.push(db.on(b+"/results", r => { S.results = r || {}; renderLobby(); }));
+}
+async function leave(){
+  if(S.code && S.pid) { try { await S.db.set(`${base()}/players/${S.pid}/online`, false); } catch {} }
+  S.unsubs.forEach(f=>f()); S.roundUnsubs.forEach(f=>f());
+  S.unsubs=[]; S.roundUnsubs=[]; S.subRound=-1; S.code=null; S.meta=null; S.builtRound=0; S.myRound=0;
+  const u = new URL(location.href); u.searchParams.delete("room"); history.replaceState(null,"",u.toString());
+  $("joinCode").value = "";
+  show("home");
+}
+
+/* ---------- phase handling ---------- */
+function onMeta(){
+  const m = S.meta;
+  if(!m){ show("home"); $("homeErr").textContent = "الغرفة انحذفت."; return; }
+  const r = m.round || 0;
+  if(r !== S.subRound){
+    S.roundUnsubs.forEach(f=>f()); S.roundUnsubs=[]; S.subRound=r; S.answers={}; S.rejects={};
+    if(r>0){
+      S.roundUnsubs.push(S.db.on(`${base()}/answers/r${r}`, a => { S.answers = a || {}; if(S.meta && S.meta.phase==="review") renderReview(); }));
+      S.roundUnsubs.push(S.db.on(`${base()}/rejects/r${r}`, x => { S.rejects = x || {}; if(S.meta && S.meta.phase==="review") renderReview(); }));
+    }
+  }
+  if(m.phase==="play"){
+    if(S.builtRound !== r) buildPlay();
+    show("play"); tick();
+  }else if(m.phase==="review"){
+    if(S.myRound===r && S.flushedRound!==r){ S.flushedRound=r; flushNow(); }
+    lockInputs();
+    show("review"); renderReview();
+  }else{
+    show("lobby"); renderLobby();
+  }
+}
+
+/* ---------- lobby ---------- */
+function renderLobby(){
+  if(!S.meta || !S.code) return;
+  const m = S.meta, host = isHost(), tot = totals(), played = Object.keys(S.results||{}).length>0;
+  $("roomCode").textContent = S.code;
+  const link = roomLink(S.code);
+  $("waBtn").href = "https://wa.me/?text=" + encodeURIComponent("تعالوا نلعب إنسان حيوان خزعبلات 🎲\nكود الغرفة: " + S.code + "\n" + link);
+  const entries = Object.entries(S.players);
+  entries.sort((a,b) => played ? ((tot[b[0]]||0)-(tot[a[0]]||0)) : ((a[1].joined||0)-(b[1].joined||0)));
+  const online = entries.filter(([,p]) => p.online).length;
+  $("onlineCount").textContent = `${online} متصل من ${entries.length}`;
+  $("plistTitle").textContent = played ? "الترتيب" : "اللاعبين";
+  $("plist").innerHTML = entries.map(([pid,p],i) => `
+    <li class="${played && i===0 && (tot[pid]||0)>0 ? "top" : ""}">
+      ${played ? `<span class="rank">${i+1}</span>` : ""}
+      <span class="dot ${p.online ? "" : "off"}" title="${p.online ? "متصل" : "غير متصل"}"></span>
+      <span class="pname">${esc(p.name)}${pid===S.pid ? " <small>(أنت)</small>" : ""}</span>
+      ${pid===m.host ? `<span class="badge">المضيف</span>` : ""}
+      ${played ? `<span class="pts">${tot[pid]||0}</span>` : ""}
+      ${host && pid!==S.pid && !p.online ? `<button class="x" data-kick="${esc(pid)}" aria-label="شيل ${esc(p.name)}">✕</button>` : ""}
+    </li>`).join("") || `<li class="hint">ما أحد دخل للحين.</li>`;
+  // last round announcement
+  const lr = m.round && S.results["r"+m.round];
+  if(lr && m.phase==="lobby"){
+    const best = Object.entries(lr).sort((a,b)=>b[1]-a[1])[0];
+    $("lastWin").hidden = !best;
+    if(best) $("lastWin").textContent = `الأعلى في الجولة ${m.round}: ${pname(best[0])} (${best[1]} نقطة)`;
+  }else $("lastWin").hidden = true;
+  $("hostCtl").hidden = !host;
+  $("waitHost").hidden = host;
+  $("startBtn").textContent = m.round ? `ابدأ الجولة ${m.round+1}` : "ابدأ الجولة الأولى";
+  if(host && m.duration) $("dur").value = String(m.duration);
+  const hostP = S.players[m.host];
+  $("takeHost").hidden = host || (hostP && hostP.online);
+}
+$("plist").addEventListener("click", e => {
+  const b = e.target.closest("[data-kick]"); if(!b || !isHost()) return;
+  S.db.remove(`${base()}/players/${b.dataset.kick}`);
+});
+$("shareBtn").addEventListener("click", async () => {
+  const link = roomLink(S.code);
+  const text = "تعالوا نلعب إنسان حيوان خزعبلات — كود الغرفة: " + S.code;
+  if(navigator.share){ try { await navigator.share({ title:"إنسان حيوان خزعبلات", text, url:link }); return; } catch(e){ if(e.name==="AbortError") return; } }
+  try { await navigator.clipboard.writeText(link); $("shareNote").textContent = "انسخ الرابط ✓"; }
+  catch { $("shareNote").textContent = link; }
+  setTimeout(()=>$("shareNote").textContent="", 4000);
+});
+$("startBtn").addEventListener("click", async () => {
+  const m = S.meta; if(!isHost()) return;
+  $("startBtn").disabled = true;
+  try{
+    let used = Object.assign({}, m.used||{});
+    let pool = LETTERS.filter(l => !used[l]);
+    if(!pool.length){ pool = LETTERS.slice(); used = {}; }
+    const letter = pool[rnd(pool.length)];
+    used[letter] = true;
+    const prompts = shuffle(PROMPTS).slice(0,Q);
+    const dur = +$("dur").value || 90;
+    const now = S.db.now();
+    await S.db.update(`${base()}/meta`, {
+      phase:"play", round:(m.round||0)+1, letter, prompts, duration:dur,
+      startAt: now+4000, endsAt: now+4000+dur*1000,
+      stoppedBy:null, stopReason:null, used
+    });
+  } finally { $("startBtn").disabled = false; }
+});
+$("takeHost").addEventListener("click", () => S.db.update(`${base()}/meta`, { host:S.pid }));
+$("leaveBtn").addEventListener("click", leave);
+
+/* ---------- play ---------- */
+async function buildPlay(){
+  const m = S.meta, r = m.round;
+  S.builtRound = r; S.myRound = r; S.revealed = false; S.stopTried = false; S.lastN = -1;
+  S.my = Array(Q).fill("");
+  $("playRound").textContent = `الجولة ${r}`;
+  const card = $("card"); card.className = "card back"; card.textContent = "؟";
+  $("sheet").innerHTML = arr(m.prompts).map((p,i) => `
+    <li><span class="n">${i+1}</span>
+      <span class="q"><b id="p${i}">؟؟؟</b>
+      <input id="a${i}" data-i="${i}" maxlength="40" autocomplete="off" disabled aria-label="${esc(p)}"></span></li>`).join("");
+  $("doneBtn").disabled = true;
+  const prev = await S.db.get(`${base()}/answers/r${r}/${S.pid}`);
+  if(S.builtRound !== r) return;
+  if(prev){ S.my = arr(prev); S.my.forEach((v,i) => { const el=$("a"+i); if(el) el.value=v; }); }
+  save();
+  updateDone();
+}
+function reveal(){
+  const m = S.meta; S.revealed = true;
+  const card = $("card"); card.className = "card pop"; card.textContent = m.letter;
+  arr(m.prompts).forEach((p,i) => { $("p"+i).textContent = p; const el=$("a"+i); el.disabled=false; el.placeholder = "يبدأ بـ " + m.letter; });
+  const first = S.my.findIndex(v => !v.trim());
+  const el = $("a" + (first<0 ? 0 : first)); if(el) el.focus({preventScroll:true});
+  updateDone();
+}
+function lockInputs(){ document.querySelectorAll("#sheet input").forEach(el => el.disabled = true); $("doneBtn").disabled = true; }
+function tick(){
+  const m = S.meta; if(!m || m.phase!=="play" || S.builtRound!==m.round) return;
+  const now = S.db.now();
+  if(now < m.startAt){
+    const n = Math.ceil((m.startAt-now)/1000);
+    $("card").textContent = n;
+    $("timer").textContent = fmt(m.duration||90);
+    $("barFill").style.transform = "scaleX(1)";
+    return;
+  }
+  if(!S.revealed) reveal();
+  const total = (m.endsAt - m.startAt)/1000;
+  const left = Math.max(0, Math.ceil((m.endsAt-now)/1000));
+  $("timer").textContent = fmt(left);
+  $("timer").classList.toggle("low", left<=15);
+  $("barFill").style.transform = `scaleX(${Math.max(0,(m.endsAt-now)/1000/total)})`;
+  if(left<=0 && !S.stopTried){ S.stopTried = true; stop("time"); }
+}
+setInterval(tick, 250);
+
+function filled(){ return S.my.filter(v => v.trim()).length; }
+function updateDone(){
+  const n = filled();
+  $("doneBtn").disabled = !S.revealed || n<Q || !S.meta || S.meta.phase!=="play";
+  $("doneHint").textContent = n<Q ? `عبّيت ${n} من ${Q}. عبّ الكل عشان تقدر تقول خلصت.` : "جاهز! اضغط خلصت ✋";
+  if(n !== S.lastN && S.meta && S.meta.phase==="play"){
+    S.lastN = n;
+    S.db.set(`${base()}/progress/${S.pid}`, { r:S.myRound, n });
+  }
+}
+$("sheet").addEventListener("input", e => {
+  const el = e.target; if(!el.dataset || el.dataset.i==null) return;
+  const i = +el.dataset.i;
+  S.my[i] = el.value;
+  el.classList.toggle("okl", startsOK(el.value, S.meta && S.meta.letter));
+  clearTimeout(S.saveT); S.saveT = setTimeout(save, 500);
+  updateDone();
+});
+$("sheet").addEventListener("keydown", e => {
+  if(e.key==="Enter" && e.target.dataset && e.target.dataset.i!=null){
+    e.preventDefault();
+    const nx = $("a" + (+e.target.dataset.i + 1));
+    if(nx) nx.focus(); else if(!$("doneBtn").disabled) $("doneBtn").focus();
+  }
+});
+function save(){
+  if(!S.myRound || !S.code) return;
+  return S.db.set(`${base()}/answers/r${S.myRound}/${S.pid}`, S.my.map(s => s.slice(0,40)));
+}
+function flushNow(){ clearTimeout(S.saveT); return save(); }
+async function stop(reason){
+  const r = S.meta.round;
+  await flushNow();
+  S.flushedRound = r;
+  await S.db.txn(`${base()}/meta`, m => {
+    if(!m) return;
+    if(m.phase!=="play" || m.round!==r) return;
+    m.phase = "review"; m.stopReason = reason; m.stoppedBy = reason==="done" ? S.pid : null;
+    return m;
+  });
+}
+$("doneBtn").addEventListener("click", () => {
+  if(filled()<Q) return;
+  $("doneBtn").disabled = true;
+  stop("done");
+});
+function renderRace(){
+  if(!S.meta || S.meta.phase!=="play") return;
+  const r = S.meta.round;
+  const items = Object.entries(S.players).filter(([pid,p]) => p.online || pid===S.pid).map(([pid,p]) => {
+    const pr = S.progress[pid]; const n = pr && pr.r===r ? pr.n : 0;
+    return { pid, name:p.name, n };
+  }).sort((a,b)=>b.n-a.n);
+  $("race").innerHTML = items.map(x => `<span class="chip ${x.n>=Q?"full":""} ${x.pid===S.pid?"me":""}">${esc(x.name)} <b>${x.n}/${Q}</b></span>`).join("");
+}
+
+/* ---------- review ---------- */
+function renderReview(){
+  const m = S.meta; if(!m || m.phase!=="review") return;
+  const host = isHost();
+  const { pts, detail, pids } = computeRound();
+  S.detail = detail;
+  $("reviewRound").textContent = `الجولة ${m.round}`;
+  $("reviewLetter").textContent = m.letter;
+  $("stopWho").textContent = m.stopReason==="done" ? `${pname(m.stoppedBy)}: خلصت ✋` : "خلص الوقت ⏰";
+  $("hostHint").hidden = !host;
+  const prompts = arr(m.prompts);
+  if(!pids.length){
+    $("qcards").innerHTML = `<p class="hint">نجمع الإجابات…</p>`;
+  }else{
+    $("qcards").innerHTML = prompts.map((p,qi) => `
+      <div class="qcard"><h4><span class="n">${qi+1}</span>${esc(p)}</h4><ul>
+      ${pids.map(pid => {
+        const d = detail[qi][pid];
+        const cls = !d.text ? "bad empty" : d.ok ? (d.dup ? "dup" : "ok") : "bad";
+        const tag = host ? "button" : "div";
+        const attrs = host ? ` type="button" data-q="${qi}" data-p="${esc(pid)}" aria-label="${d.ok ? "ارفض" : "اقبل"} إجابة ${esc(pname(pid))}"` : "";
+        return `<li><${tag} class="ans ${cls}"${attrs}><span class="who">${esc(pname(pid))}${pid===S.pid?" (أنت)":""}</span><span class="txt">${d.text ? esc(d.text) : "—"}</span><span class="pp">${d.pts}</span></${tag}></li>`;
+      }).join("")}
+      </ul></div>`).join("");
+  }
+  const tot = totals();
+  const order = pids.slice().sort((a,b) => pts[b]-pts[a]);
+  $("roundBoard").innerHTML = order.map((pid,i) => `
+    <li class="${i===0 && pts[pid]>0 ? "top" : ""}"><span class="rank">${i+1}</span>
+    <span class="pname">${esc(pname(pid))}${pid===S.pid ? " <small>(أنت)</small>" : ""} <small>· المجموع ${(tot[pid]||0)+pts[pid]}</small></span>
+    <span class="pts">+${pts[pid]}</span></li>`).join("");
+  $("commitBtn").hidden = !host;
+  $("reviewWait").hidden = host;
+}
+$("qcards").addEventListener("click", e => {
+  const b = e.target.closest("button.ans"); if(!b || !isHost() || !S.detail) return;
+  const qi = +b.dataset.q, pid = b.dataset.p, d = S.detail[qi] && S.detail[qi][pid];
+  if(!d || !d.text) return;
+  const want = d.ok ? "no" : "ok";
+  const path = `${base()}/rejects/r${S.meta.round}/${qi}_${pid}`;
+  if((want==="ok") === d.auto) S.db.remove(path); else S.db.set(path, want);
+});
+$("commitBtn").addEventListener("click", async () => {
+  if(!isHost()) return;
+  $("commitBtn").disabled = true;
+  try{
+    const { pts } = computeRound();
+    await S.db.set(`${base()}/results/r${S.meta.round}`, pts);
+    await S.db.update(`${base()}/meta`, { phase:"lobby" });
+  } finally { $("commitBtn").disabled = false; }
+});
+
+/* ---------- boot ---------- */
+async function boot(){
+  const qs = new URLSearchParams(location.search);
+  const conf = window.FIREBASE_CONFIG;
+  try{
+    if(DEMO) S.db = demoAdapter();
+    else if(conf && conf.databaseURL && !/PASTE/.test(conf.databaseURL)) S.db = await firebaseAdapter(conf);
+  }catch(e){ console.error(e); }
+  if(!S.db){ show("setup"); return; }
+  S.db.onConnected(c => {
+    if(c && S.code && S.pid){
+      const pp = `${base()}/players/${S.pid}`;
+      S.db.get(pp).then(p => { if(p){ S.db.set(pp+"/online", true); S.db.onDisconnect(pp+"/online", false); } });
+    }
+  });
+  $("name").value = store.get("kz_name") || "";
+  const room = (qs.get("room")||"").toUpperCase();
+  show("home");
+  if(room){
+    $("joinCode").value = room;
+    $("createBtn").hidden = $("orLine").hidden = true;
+    $("joinBtn").textContent = "ادخل الغرفة";
+    if($("name").value && store.get("kz_pid_"+room)) enter(room, false);
+    else $("name").focus();
+  }
+}
+$("createBtn").addEventListener("click", () => enter(null, true));
+$("joinBtn").addEventListener("click", () => enter($("joinCode").value, false));
+$("joinCode").addEventListener("input", e => { e.target.value = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g,""); });
+$("joinCode").addEventListener("keydown", e => { if(e.key==="Enter") enter($("joinCode").value, false); });
+$("name").addEventListener("keydown", e => { if(e.key==="Enter"){ if($("joinCode").value) enter($("joinCode").value,false); } });
+document.addEventListener("visibilitychange", () => { if(document.visibilityState==="hidden" && S.myRound) flushNow(); });
+boot();
+</script>
+</body>
+</html>
