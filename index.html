@@ -451,6 +451,22 @@ input:focus{background:#fff;border-color:var(--ink);box-shadow:0 0 0 4px rgba(20
 .spot .a{border:2.5px solid var(--ink);box-shadow:3px 3px 0 var(--ink)}
 .tvrules li::before{border-width:2.5px;background:var(--sun-soft)}
 
+/* ================= The letter sun: disc + hand-drawn rays ================= */
+:root{--rays:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><path d='M43.9 12.5L50.0 1.0L56.1 12.5zM63.4 14.5L74.5 7.6L74.1 20.6zM79.4 25.9L92.4 25.5L85.5 36.6zM87.5 43.9L99.0 50.0L87.5 56.1zM85.5 63.4L92.4 74.5L79.4 74.1zM74.1 79.4L74.5 92.4L63.4 85.5zM56.1 87.5L50.0 99.0L43.9 87.5zM36.6 85.5L25.5 92.4L25.9 79.4zM20.6 74.1L7.6 74.5L14.5 63.4zM12.5 56.1L1.0 50.0L12.5 43.9zM14.5 36.6L7.6 25.5L20.6 25.9zM25.9 20.6L25.5 7.6L36.6 14.5z' fill='%23F2BE8C' stroke='%233B2416' stroke-width='1.6' stroke-linejoin='round'/></svg>")}
+.sun,.letter{--disc:var(--sun);border:0!important;box-shadow:none!important;border-radius:50%;
+  background:radial-gradient(circle closest-side,color-mix(in srgb,var(--disc) 78%,#fff) 0%,var(--disc) 46%,var(--disc) 68.5%,var(--ink) 69%,var(--ink) 73%,transparent 73.5%),var(--rays) center/100% 100% no-repeat;
+  filter:drop-shadow(4px 4px 0 var(--ink));color:#FFF8EE;text-shadow:3px 3px 0 rgba(59,36,22,.45)}
+.letter.back{--disc:#3B2416;text-shadow:none}
+.sun{width:clamp(140px,40vw,172px);font-size:clamp(3.4rem,13vw,4.4rem);padding-bottom:.08em}
+.letter{width:146px;font-size:3.9rem;padding-bottom:.06em}
+.stage{margin-top:6px}
+.rlabel{white-space:nowrap}
+.letter.back{font-size:3.4rem}
+.tvsun{width:min(31vh,22vw)!important;height:min(31vh,22vw)!important;font-size:min(13vh,9vw)!important;margin-top:-1.5vh!important}
+.tvsun.back{font-size:min(12vh,8vw)!important}
+.hero{gap:8px}
+@media (max-width:380px){.letter{width:124px;font-size:3.3rem}}
+
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
 </style>
 </head>
