@@ -271,6 +271,20 @@ body.tv .stopbar .lt{font-size:3.4em}
 .sheet.judging li{padding:8px 12px}
 #judgeBar{display:flex;flex-direction:column;gap:10px;align-items:center}
 
+/* review: votes, objections, host controls */
+.ans{display:flex;flex-wrap:wrap;gap:6px 8px}
+.ans .who{flex:0 1 6rem}
+.ans .txt{flex:1 1 6rem}
+.ans .acts{display:flex;gap:6px;align-items:center;margin-inline-start:auto}
+.tag{font-style:normal;font-size:.75rem;font-weight:800;margin-inline-start:6px;padding:1px 7px;border-radius:99px;background:#fff;border:1.5px solid var(--ink);white-space:nowrap}
+.tag.flag{background:#FFE1E1}
+.vote{padding:3px 7px;font-size:.95rem;border-width:2px;box-shadow:none;border-radius:10px;background:#fff;opacity:.55}
+.vote.on{opacity:1;background:#FFD23F;box-shadow:2px 2px 0 var(--ink)}
+.pp.state{cursor:pointer;box-shadow:2px 2px 0 var(--ink)}
+.adj{display:inline-flex;align-items:center;gap:6px}
+#roundBoard .nm{white-space:normal;line-height:1.3}
+.adj button{padding:2px 8px;font-size:.85rem;border-width:2px;box-shadow:none;border-radius:8px}
+
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
 </style>
 </head>
@@ -419,11 +433,13 @@ body.tv .stopbar .lt{font-size:3.4em}
       <div><div class="who" id="stopWho"></div><strong id="reviewRound">الجولة 1</strong></div>
       <span class="lt" id="reviewLetter">ب</span>
     </div>
-    <p class="hint" id="hostHint" hidden style="font-weight:700">أنت الحَكَم 🧑‍⚖️ اضغط على أي إجابة عشان ترفضها أو تقبلها.</p>
+    <p class="hint" id="hostHint" hidden style="font-weight:700">أنت الحَكَم 🧑‍⚖️ اضغط على نقاط أي إجابة عشان تغيّرها: صح ← مكررة ← غلط. وتقدر تزيد أو تنقص نقاط أي لاعب من نتيجة الجولة تحت.</p>
+    <p class="hint" id="playerHint" hidden style="font-weight:700">⭐ صوّت للإجابة الإبداعية (+٢ لكل نجمة، عندك ٣ نجوم) · 🚩 اعترض لو تشوف الإجابة غلط أو نفس إجابة ثانية.</p>
     <div class="legend">
       <span style="--c:var(--mint)">فريدة 10</span>
       <span style="--c:var(--orange)">مكررة 5</span>
       <span style="--c:var(--soft)">غلط أو فاضية 0</span>
+      <span style="--c:#FFD23F">⭐ إبداع +2</span>
     </div>
     <div id="qcards" style="display:flex;flex-direction:column;gap:12px"></div>
     <h2>نتيجة الجولة</h2>
@@ -470,8 +486,8 @@ body.tv .stopbar .lt{font-size:3.4em}
 <script type="module">
 const LETTERS = "ا ب ت ج ح خ د ر ز س ش ص ط ع ف ق ك ل م ن ه و ي".split(" ");
 /* Classic + broad categories have answers for every letter in LETTERS. */
-const CORE = ["اسم ولد","اسم بنت","حيوان","نبات أو فاكهة","جماد","بلاد"];
-const EXTRA = ["أكلة","صفة لشخص","فعل","شخصية مشهورة","اسم عائلة","شيء في البيت","شيء في السوبرماركت","شيء تلبسه","جزء من الجسم"];
+const CORE = ["اسم ولد","اسم بنت","حيوان","نبات","جماد","بلاد"];
+const EXTRA = ["طبخة","صفة لشخص","فعل","شخصية مشهورة","اسم عائلة","شيء في البيت","شيء في السوبرماركت","شيء تلبسه","جزء من الجسم"];
 /* Harder questions. only = the letters it works with; not = letters it doesn't work with. */
 const FUN = [
  {q:"شيء ينكسر", only:"زكصفمجقبشلنعطت"}, {q:"اسم تسمي فيه قطوتك"}, {q:"هواية", not:"و"},
@@ -484,7 +500,7 @@ const FUN = [
  {q:"جملة تقولها لما تتصل أمك"}, {q:"اسم أغنية أو مغني"}, {q:"مثل شعبي"},
  {q:"اسم مطعم أو كوفي", only:"ابتدرسشفكمه"}, {q:"شيء تلقاه تحت الكنب", only:"بجرشفقكلم"},
  {q:"شيء له ريحة", only:"بزشعفقكنهوري"}, {q:"شيء تسويه قبل النوم"},
- {q:"مهنة", not:"هي"}, {q:"مشروب", not:"دصطو"}
+ {q:"مهنة", not:"هي"}, {q:"مشروب", not:"دصطو"}, {q:"فاكهة أو خضار", not:"صو"}
 ];
 const fits = (f,L) => f.only ? f.only.includes(L) : !(f.not||"").includes(L);
 /* How many of each kind per level: [classic, broad, hard] */
@@ -770,7 +786,7 @@ function demoAdapter(){
 /* ---------- state ---------- */
 const S = {
   db:null, code:null, pid:null, name:"", tv:false,
-  meta:null, players:{}, progress:{}, results:{}, answers:{}, rejects:{},
+  meta:null, players:{}, progress:{}, results:{}, answers:{}, rejects:{}, stars:{}, flags:{}, adjust:{},
   unsubs:[], roundUnsubs:[], subRound:-1,
   my:Array(Q).fill(""), myRound:0, builtRound:0, revealed:false, stopTried:false, flushedRound:0, lastN:-1, saveT:null,
   detail:null, lastPhase:null, lastCount:null, lastTickSec:null, knownPlayers:null, celebrated:{}, tvSpot:0, tvRevealed:false
@@ -817,8 +833,15 @@ function boardHTML(list, big=false){
 function growBars(root){ requestAnimationFrame(() => requestAnimationFrame(() => root.querySelectorAll(".barwrap i").forEach(i => i.style.width = i.dataset.w + "%"))); }
 
 /* ---------- scoring ---------- */
+const STAR_PTS = 2, MAX_STARS = 3;
+function voteCounts(src){
+  const c = {};
+  for(const [voter, keys] of Object.entries(src || {})) for(const k of Object.keys(keys || {})){ if(k.split("_").slice(1).join("_") !== voter) c[k] = (c[k]||0) + 1; }
+  return c;
+}
 function computeRound(){
   const m = S.meta, L = m.letter, rej = S.rejects || {};
+  const starC = voteCounts(S.stars), flagC = voteCounts(S.flags);
   const pids = Object.keys(S.answers || {});
   pids.sort((a,b) => ((S.players[a]||{}).joined||0) - ((S.players[b]||{}).joined||0));
   const pts = {}, detail = [];
@@ -829,18 +852,20 @@ function computeRound(){
       const text = arr(S.answers[pid])[qi].trim();
       const auto = startsOK(text, L);
       const ov = rej[qi+"_"+pid];
-      const ok = !isWord(text) ? false : ov==="ok" ? true : ov==="no" ? false : auto;
-      detail[qi][pid] = { text, ok, auto };
+      const ok = !isWord(text) ? false : (ov==="ok" || ov==="dup") ? true : ov==="no" ? false : auto;
+      detail[qi][pid] = { text, ok, auto, forcedDup: ov==="dup", stars: starC[qi+"_"+pid]||0, flags: flagC[qi+"_"+pid]||0 };
       if(ok){ const k=core(text); groups[k]=(groups[k]||0)+1; }
     }
     for(const pid of pids){
       const d = detail[qi][pid];
-      d.dup = d.ok && groups[core(d.text)] > 1;
-      d.pts = d.ok ? (d.dup ? 5 : 10) : 0;
+      d.dup = d.ok && (d.forcedDup || groups[core(d.text)] > 1);
+      d.pts = d.ok ? (d.dup ? 5 : 10) + d.stars*STAR_PTS : 0;
       pts[pid] += d.pts;
     }
   }
-  return { pts, detail, pids };
+  const adj = {};
+  for(const pid of pids){ adj[pid] = +(S.adjust||{})[pid] || 0; pts[pid] += adj[pid]; }
+  return { pts, detail, pids, adj };
 }
 
 /* ---------- entering a room ---------- */
@@ -920,10 +945,11 @@ function onMeta(){
   const r = m.round || 0;
   if(r===0 && (S.builtRound || S.tv)){ S.celebrated = {}; S.builtRound = 0; S.myRound = 0; S.flushedRound = 0; if($("tvMain")) $("tvMain").dataset.k = ""; }
   if(r !== S.subRound){
-    S.roundUnsubs.forEach(f=>f()); S.roundUnsubs=[]; S.subRound=r; S.answers={}; S.rejects={};
+    S.roundUnsubs.forEach(f=>f()); S.roundUnsubs=[]; S.subRound=r; S.answers={}; S.rejects={}; S.stars={}; S.flags={}; S.adjust={};
     if(r>0){
       S.roundUnsubs.push(S.db.on(`${base()}/answers/r${r}`, a => { S.answers = a || {}; if(S.meta && S.meta.phase==="review"){ renderReview(); if(S.tv) renderTV(); } }));
       S.roundUnsubs.push(S.db.on(`${base()}/rejects/r${r}`, x => { S.rejects = x || {}; if(S.meta && S.meta.phase==="review"){ renderReview(); if(S.tv) renderTV(); } }));
+      for(const k of ["stars","flags","adjust"]) S.roundUnsubs.push(S.db.on(`${base()}/${k}/r${r}`, x => { S[k] = x || {}; if(S.meta && S.meta.phase==="review"){ renderReview(); if(S.tv) renderTV(); } }));
     }
   }
   const phaseKey = m.phase + ":" + r;
@@ -1179,6 +1205,8 @@ function renderReview(){
   $("reviewLetter").textContent = m.letter;
   $("stopWho").textContent = stopText(m);
   $("hostHint").hidden = !host;
+  $("playerHint").hidden = host;
+  const myStars = (S.stars||{})[S.pid] || {}, myFlags = (S.flags||{})[S.pid] || {};
   const prompts = arr(m.prompts);
   if(!pids.length){
     $("qcards").innerHTML = `<div class="card" style="text-align:center;font-weight:800">نجمع الإجابات…</div>`;
@@ -1188,32 +1216,58 @@ function renderReview(){
       ${pids.map(pid => {
         const d = detail[qi][pid];
         const cls = !d.text ? "bad empty" : d.ok ? (d.dup ? "dup" : "ok") : "bad";
-        const tag = host ? "button" : "div";
-        const attrs = host ? ` type="button" data-q="${qi}" data-p="${esc(pid)}" aria-label="${d.ok ? "ارفض" : "اقبل"} إجابة ${esc(pname(pid))}"` : "";
-        return `<li><${tag} class="ans ${cls}"${attrs}>${avatar(pid,pname(pid))}<span class="who">${esc(pname(pid))}${pid===S.pid?" (أنت)":""}</span><span class="txt">${d.text ? esc(d.text) : "—"}</span><span class="pp">${d.pts}</span></${tag}></li>`;
+        const key = qi+"_"+pid, word = isWord(d.text), mine = pid===S.pid;
+        const tags = `${d.stars ? `<i class="tag star">⭐${d.stars}</i>` : ""}${d.flags ? `<i class="tag flag">🚩${d.flags}</i>` : ""}`;
+        const acts = host
+          ? (word ? `<button type="button" class="pp state" data-act="state" data-q="${qi}" data-p="${esc(pid)}" aria-label="غيّر حالة إجابة ${esc(pname(pid))}">${d.pts}</button>` : `<span class="pp">${d.pts}</span>`)
+          : `${word && !mine ? `<button type="button" class="vote${myStars[key]?" on":""}" data-act="star" data-k="${key}" aria-label="نجمة إبداع">⭐</button><button type="button" class="vote${myFlags[key]?" on":""}" data-act="flag" data-k="${key}" aria-label="اعتراض">🚩</button>` : ""}<span class="pp">${d.pts}</span>`;
+        return `<li><div class="ans ${cls}">${avatar(pid,pname(pid))}<span class="who">${esc(pname(pid))}${mine?" (أنت)":""}</span><span class="txt">${d.text ? esc(d.text) : "—"}${tags}</span><span class="acts">${acts}</span></div></li>`;
       }).join("")}
       </ul></div>`).join("");
   }
   const tot = totals();
-  const list = pids.map(pid => ({ pid, name:pname(pid), pts:pts[pid], label:"+"+pts[pid], extra:`· المجموع ${(tot[pid]||0)+pts[pid]}` })).sort((a,b)=>b.pts-a.pts);
+  const { adj } = computeRound();
+  const list = pids.map(pid => {
+    const a = adj[pid] || 0, sign = n => (n>0?"+":"")+n;
+    const label = host ? `<span class="adj"><button type="button" data-adj="-5" data-p="${esc(pid)}" aria-label="نقّص ٥">−٥</button><b>${sign(pts[pid])}</b><button type="button" data-adj="5" data-p="${esc(pid)}" aria-label="زد ٥">+٥</button></span>` : sign(pts[pid]);
+    return { pid, name:pname(pid), pts:pts[pid], label, extra:`· المجموع ${(tot[pid]||0)+pts[pid]}${a ? ` · تعديل الحَكَم ${sign(a)}` : ""}` };
+  }).sort((a,b)=>b.pts-a.pts);
   $("roundBoard").innerHTML = boardHTML(list); growBars($("roundBoard"));
   $("commitBtn").hidden = !host;
   $("reviewWait").hidden = host;
 }
 $("qcards").addEventListener("click", e => {
-  const b = e.target.closest("button.ans"); if(!b || !isHost() || !S.detail) return;
-  const qi = +b.dataset.q, pid = b.dataset.p, d = S.detail[qi] && S.detail[qi][pid];
-  if(!d || !isWord(d.text)) return;
-  const want = d.ok ? "no" : "ok";
-  const path = `${base()}/rejects/r${S.meta.round}/${qi}_${pid}`;
+  const b = e.target.closest("[data-act]"); if(!b || !S.meta || S.meta.phase!=="review") return;
+  const r = S.meta.round;
+  if(b.dataset.act==="state"){
+    if(!isHost() || !S.detail) return;
+    const qi = +b.dataset.q, pid = b.dataset.p, d = S.detail[qi] && S.detail[qi][pid];
+    if(!d || !isWord(d.text)) return;
+    const cur = !d.ok ? "no" : d.dup ? "dup" : "ok";
+    const next = cur==="ok" ? "dup" : cur==="dup" ? "no" : "ok";
+    Sound.pop();
+    S.db.set(`${base()}/rejects/r${r}/${qi}_${pid}`, next);
+    return;
+  }
+  const k = b.dataset.k, kind = b.dataset.act==="star" ? "stars" : "flags";
+  const mine = (S[kind]||{})[S.pid] || {};
+  const path = `${base()}/${kind}/r${r}/${S.pid}/${k}`;
+  if(mine[k]){ S.db.remove(path); return; }
+  if(kind==="stars" && Object.keys(mine).length >= MAX_STARS){ toast("استخدمت نجومك الثلاث. شيل نجمة عشان تعطي غيرها."); return; }
+  Sound.pop(); S.db.set(path, true);
+});
+$("roundBoard").addEventListener("click", e => {
+  const b = e.target.closest("[data-adj]"); if(!b || !isHost() || !S.meta) return;
+  const pid = b.dataset.p, cur = +(S.adjust||{})[pid] || 0, v = cur + (+b.dataset.adj);
   Sound.pop();
-  if((want==="ok") === d.auto) S.db.remove(path); else S.db.set(path, want);
+  const path = `${base()}/adjust/r${S.meta.round}/${pid}`;
+  if(v===0) S.db.remove(path); else S.db.set(path, v);
 });
 $("newGameBtn").addEventListener("click", async () => {
   if(!isHost()) return;
   $("newGameBtn").disabled = true;
   try{
-    await Promise.all(["results","answers","rejects","progress"].map(k => S.db.remove(`${base()}/${k}`)));
+    await Promise.all(["results","answers","rejects","progress","stars","flags","adjust"].map(k => S.db.remove(`${base()}/${k}`)));
     await S.db.update(`${base()}/meta`, { phase:"lobby", round:0, used:null, stoppedBy:null, stopReason:null });
     S.celebrated = {}; S.builtRound = 0; S.myRound = 0; S.flushedRound = 0;
   } finally { $("newGameBtn").disabled = false; }
@@ -1339,7 +1393,7 @@ function renderTV(){
         <h3><span class="num">${qi+1}</span>${esc(p)}</h3>
         <div class="answers">${answers.length ? answers.map((a,i)=>{
           const cls = !a.text ? "bad" : a.ok ? (a.dup ? "dup" : "ok") : "bad";
-          return `<span class="a ${cls}" style="animation-delay:${i*70}ms">${avatar(a.pid,pname(a.pid))}<span><small>${esc(pname(a.pid))}</small><br><span class="t">${a.text ? esc(a.text) : "—"}</span></span><span class="pp">${a.pts}</span></span>`;
+          return `<span class="a ${cls}" style="animation-delay:${i*70}ms">${avatar(a.pid,pname(a.pid))}<span><small>${esc(pname(a.pid))}</small><br><span class="t">${a.text ? esc(a.text) : "—"}</span>${a.stars ? ` ⭐${a.stars}` : ""}</span><span class="pp">${a.pts}</span></span>`;
         }).join("") : '<p class="muted" style="font-weight:700">نجمع الإجابات…</p>'}</div>
         <div class="dots">${Array.from({length:Q},(_,i)=>`<i class="${i===qi?"on":""}"></i>`).join("")}</div>
       </div>`;
