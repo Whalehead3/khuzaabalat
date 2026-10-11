@@ -10,7 +10,7 @@
 <meta name="theme-color" content="#FFD23F">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Carlito:wght@400;700&family=Almarai:wght@400;700;800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Carlito:wght@400;700&family=Almarai:wght@400;700;800&family=Noto+Kufi+Arabic:wght@800&display=swap">
 <style>
 /* Layout: board-game look — sunny table, white cards with thick ink outlines and hard shadows.
    Phone: one column per game phase. TV (?tv=1): a 16:9 stage with a left "board" and right "players" column. */
@@ -284,6 +284,10 @@ body.tv .stopbar .lt{font-size:3.4em}
 .adj{display:inline-flex;align-items:center;gap:6px}
 #roundBoard .nm{white-space:normal;line-height:1.3}
 .adj button{padding:2px 8px;font-size:.85rem;border-width:2px;box-shadow:none;border-radius:8px}
+
+/* The round's letter uses Noto Kufi, where every letter (especially ه) is clear at a glance */
+.letter,.stopbar .lt,.tvletter,.tile{font-family:"Noto Kufi Arabic","Almarai",Tahoma,sans-serif;font-weight:800}
+.letter:not(.back){font-size:4.4rem}
 
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
 </style>
@@ -1093,7 +1097,7 @@ function reveal(){
   const L = $("letter"); L.className = "letter flip"; L.textContent = m.letter;
   Sound.reveal();
   const judge = isJudge();
-  arr(m.prompts).forEach((p,i) => { $("p"+i).textContent = p; const el=$("a"+i); el.disabled=judge; el.placeholder = "يبدأ بـ " + m.letter; el.classList.toggle("okl", startsOK(el.value, m.letter)); $("li"+i).classList.toggle("done", isWord(S.my[i])); });
+  arr(m.prompts).forEach((p,i) => { $("p"+i).textContent = p; const el=$("a"+i); el.disabled=judge; el.placeholder = "يبدأ بـ " + (m.letter==="ه" ? "هـ" : m.letter); el.classList.toggle("okl", startsOK(el.value, m.letter)); $("li"+i).classList.toggle("done", isWord(S.my[i])); });
   if(judge) return;
   const first = S.my.findIndex(v => !isWord(v));
   const el = $("a" + (first<0 ? 0 : first)); if(el) el.focus({preventScroll:true});
