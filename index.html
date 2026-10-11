@@ -437,13 +437,13 @@ body.tv .stopbar .lt{font-size:3.4em}
       <div><div class="who" id="stopWho"></div><strong id="reviewRound">الجولة 1</strong></div>
       <span class="lt" id="reviewLetter">ب</span>
     </div>
-    <p class="hint" id="hostHint" hidden style="font-weight:700">أنت الحَكَم 🧑‍⚖️ اضغط على نقاط أي إجابة عشان تغيّرها: صح ← مكررة ← غلط. وتقدر تزيد أو تنقص نقاط أي لاعب من نتيجة الجولة تحت.</p>
-    <p class="hint" id="playerHint" hidden style="font-weight:700">⭐ صوّت للإجابة الإبداعية (+٢ لكل نجمة، عندك ٣ نجوم) · 🚩 اعترض لو تشوف الإجابة غلط أو نفس إجابة ثانية.</p>
+    <p class="hint" id="hostHint" hidden style="font-weight:700">أنت الحَكَم 🧑‍⚖️ اضغط على نقاط أي إجابة عشان تغيّرها: صح ← مكررة ← غلط. الإجابات اللي عليها 🚩 اعتراض تحتاج قرارك. وتقدر تزيد أو تنقص نقاط أي لاعب من نتيجة الجولة تحت.</p>
+    <p class="hint" id="playerHint" hidden style="font-weight:700">⭐ صوّت للإجابة الإبداعية: لو صوّت لها لاعبين أو أكثر تاخذ +٥ (عندك ٣ نجوم). 🚩 اعترض لو تشوف الإجابة غلط أو نفس إجابة ثانية، والحَكَم هو اللي يقرر.</p>
     <div class="legend">
       <span style="--c:var(--mint)">فريدة 10</span>
       <span style="--c:var(--orange)">مكررة 5</span>
       <span style="--c:var(--soft)">غلط أو فاضية 0</span>
-      <span style="--c:#FFD23F">⭐ إبداع +2</span>
+      <span style="--c:#FFD23F">⭐⭐ صوتين إبداع +5</span>
     </div>
     <div id="qcards" style="display:flex;flex-direction:column;gap:12px"></div>
     <h2>نتيجة الجولة</h2>
@@ -837,7 +837,7 @@ function boardHTML(list, big=false){
 function growBars(root){ requestAnimationFrame(() => requestAnimationFrame(() => root.querySelectorAll(".barwrap i").forEach(i => i.style.width = i.dataset.w + "%"))); }
 
 /* ---------- scoring ---------- */
-const STAR_PTS = 2, MAX_STARS = 3;
+const STAR_BONUS = 5, STARS_NEEDED = 2, MAX_STARS = 3;
 function voteCounts(src){
   const c = {};
   for(const [voter, keys] of Object.entries(src || {})) for(const k of Object.keys(keys || {})){ if(k.split("_").slice(1).join("_") !== voter) c[k] = (c[k]||0) + 1; }
@@ -863,7 +863,8 @@ function computeRound(){
     for(const pid of pids){
       const d = detail[qi][pid];
       d.dup = d.ok && (d.forcedDup || groups[core(d.text)] > 1);
-      d.pts = d.ok ? (d.dup ? 5 : 10) + d.stars*STAR_PTS : 0;
+      d.creative = d.ok && d.stars >= STARS_NEEDED;
+      d.pts = d.ok ? (d.dup ? 5 : 10) + (d.creative ? STAR_BONUS : 0) : 0;
       pts[pid] += d.pts;
     }
   }
@@ -1221,7 +1222,7 @@ function renderReview(){
         const d = detail[qi][pid];
         const cls = !d.text ? "bad empty" : d.ok ? (d.dup ? "dup" : "ok") : "bad";
         const key = qi+"_"+pid, word = isWord(d.text), mine = pid===S.pid;
-        const tags = `${d.stars ? `<i class="tag star">⭐${d.stars}</i>` : ""}${d.flags ? `<i class="tag flag">🚩${d.flags}</i>` : ""}`;
+        const tags = `${d.stars ? `<i class="tag star">⭐${d.stars}${d.creative ? " +5" : ""}</i>` : ""}${d.flags ? `<i class="tag flag">🚩${d.flags}</i>` : ""}`;
         const acts = host
           ? (word ? `<button type="button" class="pp state" data-act="state" data-q="${qi}" data-p="${esc(pid)}" aria-label="غيّر حالة إجابة ${esc(pname(pid))}">${d.pts}</button>` : `<span class="pp">${d.pts}</span>`)
           : `${word && !mine ? `<button type="button" class="vote${myStars[key]?" on":""}" data-act="star" data-k="${key}" aria-label="نجمة إبداع">⭐</button><button type="button" class="vote${myFlags[key]?" on":""}" data-act="flag" data-k="${key}" aria-label="اعتراض">🚩</button>` : ""}<span class="pp">${d.pts}</span>`;
