@@ -620,7 +620,7 @@ body.tv{background-image:repeating-linear-gradient(180deg,transparent 0 47px,var
       <div id="wStatus" class="who-grid"></div>
     </div>
     <div id="writeBox" class="card">
-      <label for="fake">اكتب معنى مزيّف يقنع الباقين</label>
+      <label for="fake">وش ظنك معناها؟ اكتب معنى غلط</label>
       <textarea id="fake" maxlength="90" rows="3" placeholder="مثلاً: أداة قديمة يستخدمونها في…"></textarea>
       <button id="sendFake" class="big pink" type="button">أرسل المعنى</button>
       <p class="hint" id="fakeNote" style="font-weight:700;text-align:center"></p>
@@ -1414,7 +1414,7 @@ function renderTV(){
       main.dataset.k = key;
       main.innerHTML = `<div class="tvpanel grow tvq">${tvRing()}
         <div class="tvqword"><span class="tvstamp">${intro ? "استعدوا…" : esc(tagText(w.t))}</span><div class="wordcard tvword">${intro ? "…" : esc(w.w)}</div>
-        <p class="tvsub">${intro ? "" : "اكتبوا معنى مزيّف يقنع الباقين ✍️"}</p></div><div id="tvWho"></div></div>`;
+        <p class="tvsub">${intro ? "" : "وش ظنكم معناها؟ اكتبوا معنى غلط ✍️"}</p></div><div id="tvWho"></div></div>`;
     }
     $("tvWho").innerHTML = whoRow(S.fakes||{}, "مين كتب؟");
   }
