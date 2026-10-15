@@ -1,11 +1,63 @@
 {
-  "hosting": {
-    "site": "harfinsanhaywan",
-    "public": ".",
-    "ignore": ["firebase.json", "database.rules.json", "README.md", "**/.*", "**/node_modules/**"],
-    "headers": [
-      { "source": "**/*.html", "headers": [{ "key": "Cache-Control", "value": "no-cache" }] },
-      { "source": "config.js", "headers": [{ "key": "Cache-Control", "value": "no-cache" }] }
-    ]
-  }
+  "hosting": [
+    {
+      "site": "harfinsanhaywan",
+      "public": ".",
+      "ignore": [
+        "firebase.json",
+        "database.rules.json",
+        "README.md",
+        "**/.*",
+        "**/node_modules/**",
+        "mana-site/**"
+      ],
+      "headers": [
+        {
+          "source": "**/*.html",
+          "headers": [
+            {
+              "key": "Cache-Control",
+              "value": "no-cache"
+            }
+          ]
+        },
+        {
+          "source": "words.js",
+          "headers": [
+            {
+              "key": "Cache-Control",
+              "value": "no-cache"
+            }
+          ]
+        },
+        {
+          "source": "config.js",
+          "headers": [
+            {
+              "key": "Cache-Control",
+              "value": "no-cache"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "site": "qamoos-alkathabeen",
+      "public": "mana-site",
+      "ignore": [
+        "**/.*"
+      ],
+      "headers": [
+        {
+          "source": "**",
+          "headers": [
+            {
+              "key": "Cache-Control",
+              "value": "no-cache"
+            }
+          ]
+        }
+      ]
+    }
+  ]
 }
