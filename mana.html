@@ -490,6 +490,31 @@ body.tv{background-image:repeating-linear-gradient(180deg,transparent 0 47px,var
 .tvqword{flex:none}
 .tvwho{border-top:0;padding-top:0}
 .tvq .tvopts{margin-top:0}
+
+/* ---- voting: options as index cards ---- */
+#vote .q{text-align:center;font-size:1.25rem}
+.options{gap:12px}
+.opt{position:relative;align-items:flex-start;gap:12px;padding:16px 14px 16px 16px;min-height:64px;font-size:1.12rem;line-height:1.55;font-weight:800;
+  background:var(--card);border:2px solid var(--ink);border-radius:6px;box-shadow:3px 3px 0 rgba(31,42,68,.18);transition:transform .12s, box-shadow .12s, opacity .2s}
+.opt:not(:disabled):hover{transform:translateY(-1px);box-shadow:4px 5px 0 rgba(31,42,68,.2)}
+.opt .onum{flex:none;width:2.1rem;height:2.1rem;border-radius:50%;border:2px solid var(--red);color:var(--red);background:transparent;font:800 1.05rem/1 var(--display);display:grid;place-items:center;margin-top:-1px}
+.opt .otxt{padding-top:2px}
+.options.picked .opt:not(.on):not(.own){opacity:.62}
+.opt.on{background:#FFF1DA;border-color:var(--red);box-shadow:4px 4px 0 var(--red);opacity:1}
+.opt.on .onum{background:var(--red);color:#fff}
+.ostamp{position:absolute;top:-11px;left:12px;background:var(--card);border:2.5px solid var(--red);color:var(--red);font:900 .8rem/1 var(--body);padding:4px 10px;border-radius:5px;transform:rotate(-6deg);animation:stampin .25s cubic-bezier(.3,1.7,.6,1)}
+@keyframes stampin{from{transform:rotate(-6deg) scale(1.8);opacity:0}}
+.opt.own{opacity:1;border-style:dashed;box-shadow:none;background:transparent;color:var(--ink-2)}
+.opt.own .onum{border-color:var(--ink-2);color:var(--ink-2)}
+.opt.truth{background:#E4F2E9;border-color:var(--mint)}
+.olabel{flex:none;align-self:center;font-size:.75rem;font-weight:800;color:var(--ink-2);white-space:nowrap}
+.olabel.ok{color:var(--mint)}
+#voteNote{font-weight:800;color:var(--ink-2)}
+#voteNote.sent{color:var(--mint)}
+/* compact who-is-done row on phones */
+.who-grid{grid-template-columns:repeat(auto-fill,minmax(64px,1fr));gap:10px 6px}
+.st .av{--s:40px}
+.st .s{font-size:.68rem}
 </style>
 </head>
 <body>
@@ -646,7 +671,7 @@ body.tv{background-image:repeating-linear-gradient(180deg,transparent 0 47px,var
       </div>
     </div>
     <div class="entry mid-word"><div class="wordcard" id="vWord">…</div></div>
-    <h2 id="voteTitle" class="q">أي معنى هو الصحيح؟</h2>
+    <h2 id="voteTitle" class="q">وش المعنى الصحيح؟</h2>
     <ol id="options" class="options"></ol>
     <p class="hint" id="voteNote" style="font-weight:700;text-align:center"></p>
     <div id="hostRevealCtl" hidden><button id="toRevealBtn" class="big pink" type="button">اكشف الجواب 👀</button></div>
@@ -918,16 +943,20 @@ function standings(){
     .filter(x => (S.players[x.pid] && isPlayer(x.pid)) || x.pts>0)
     .sort((a,b) => b.pts-a.pts);
 }
+/* equal points share a place: 1, 1, 3 … */
+const rankOf = (list, x) => 1 + list.filter(y => y.pts > x.pts).length;
+const winners = list => list.length && list[0].pts > 0 ? list.filter(x => x.pts === list[0].pts) : [];
+const namesAnd = xs => xs.map(x => x.name).join(" و");
 function boardHTML(list, big=false){
   const max = Math.max(1, ...list.map(x=>x.pts));
-  return list.map((x,i) => `
-    <li class="${i===0 && x.pts>0 ? "first" : ""}">
-      <span class="rk">${i===0 && x.pts>0 ? "🏆" : i+1}</span>
+  return list.map((x,i) => { const rk = rankOf(list, x); return `
+    <li class="${rk===1 && x.pts>0 ? "first" : ""}">
+      <span class="rk">${rk===1 && x.pts>0 ? "🏆" : rk}</span>
       ${avatar(x.pid, x.name, {size:big?"5.2vh":"34px"})}
       <span class="nm">${esc(x.name)}${x.pid===S.pid ? " <small>(أنت)</small>" : ""}${x.extra ? ` <small>${esc(x.extra)}</small>` : ""}</span>
       <span class="sc">${x.label ?? x.pts}</span>
       <span class="barwrap"><i style="--c:${colorOf(x.pid)}" data-w="${Math.round(x.pts/max*100)}"></i></span>
-    </li>`).join("");
+    </li>`; }).join("");
 }
 function growBars(root){ requestAnimationFrame(() => requestAnimationFrame(() => root.querySelectorAll(".barwrap i").forEach(i => i.style.width = i.dataset.w + "%"))); }
 
@@ -1059,21 +1088,23 @@ $("leaveBtn").addEventListener("click", leave);
 
 /* ---------- final (phone + TV) ---------- */
 function podiumHTML(list, big){
+  /* the top three by position, but each block shows its shared place (a tie for 1st = two 1st blocks) */
   const top = [list[1], list[0], list[2]];
-  const cls = ["p2","p1","p3"], place = ["2","1","3"];
-  return top.map((x,i) => x ? `
-    <div class="pod ${cls[i]}">
-      ${avatar(x.pid, x.name, {size: big ? null : (i===1 ? "68px" : "54px"), crown: i===1})}
+  return top.map(x => { if(!x) return `<div class="pod empty"></div>`;
+    const rk = Math.min(3, rankOf(list, x));
+    return `
+    <div class="pod p${rk}">
+      ${avatar(x.pid, x.name, {size: big ? null : (rk===1 ? "68px" : "54px"), crown: rk===1 && x.pts>0})}
       <span class="nm">${esc(x.name)}${x.pid===S.pid ? " (أنت)" : ""}</span>
       <span class="pts">${x.pts} نقطة</span>
-      <div class="block">${place[i]}</div>
-    </div>` : `<div class="pod empty"></div>`).join("");
+      <div class="block">${rk}</div>
+    </div>`; }).join("");
 }
 function renderFinal(){
   const m = S.meta; if(S.tv || !m || m.phase!=="final") return;
   const list = standings();
-  const w = list[0];
-  $("finalSub").textContent = w ? `الفايز بعد ${m.round} جولات: ${w.name} 🎉` : "";
+  const w = winners(list);
+  $("finalSub").textContent = w.length > 1 ? `تعادل بعد ${m.round} جولات: ${namesAnd(w)} 🎉` : w.length ? `الفايز بعد ${m.round} جولات: ${w[0].name} 🎉` : "";
   $("podium").innerHTML = podiumHTML(list, false);
   $("finalBoard").innerHTML = boardHTML(list); growBars($("finalBoard"));
   $("newGameBtn").hidden = !isHost();
@@ -1093,7 +1124,7 @@ function qrSVG(text){
 const WORDS = window.MANA_WORDS || [];
 const PTS_RIGHT = 10, PTS_FOOL = 5, PTS_KNEW = 10, VOTE_SECS = 45, INTRO_MS = 3000;
 const wordOf = m => WORDS[(m && m.word) || 0] || WORDS[0];
-const tagText = t => t==="عامية" ? "كلمة عامية (نجدية/خليجية)" : "كلمة فصحى";
+const tagText = w => w.d ? `كلمة ${w.d}` : w.t==="عامية" ? "كلمة عامية (نجدية/خليجية)" : "كلمة فصحى";
 const roundLabel = m => `الجولة ${m.round} من ${maxRounds(m)}`;
 
 /* players who take part (the judge-only host doesn't) */
@@ -1213,7 +1244,7 @@ function renderWrite(){
   const m = S.meta, w = wordOf(m), judge = isJudge(), now = S.db.now();
   const intro = now < m.startAt;
   $("wWord").textContent = intro ? "…" : w.w;
-  $("wTag").textContent = intro ? "استعدوا…" : tagText(w.t);
+  $("wTag").textContent = intro ? "استعدوا…" : tagText(w);
   $("wRound").textContent = roundLabel(m);
   $("writeBox").hidden = judge;
   $("judgeWrite").hidden = !judge;
@@ -1259,13 +1290,15 @@ function renderVote(){
   $("vWord").textContent = w.w;
   $("vRound").textContent = roundLabel(m);
   const my = (S.votes||{})[S.pid], opts = options();
-  $("voteTitle").textContent = judge ? "الخيارات اللي يشوفها اللاعبين" : "أي معنى هو الصحيح؟";
+  $("voteTitle").textContent = judge ? "الخيارات اللي يشوفها اللاعبين" : "وش المعنى الصحيح؟";
+  $("options").classList.toggle("picked", !!my && !judge);
   $("options").innerHTML = opts.map((o,i) => {
-    const own = o.id === S.pid;
-    return `<li><button type="button" class="opt${my===o.id ? " on" : ""}" data-opt="${esc(o.id)}" ${own || judge ? "disabled" : ""}>
-      <span class="onum">${i+1}</span><span class="otxt">${esc(o.text)}</span>${own ? `<small>إجابتك</small>` : ""}${judge && o.id==="real" ? `<small>✓ الصحيح</small>` : ""}</button></li>`;
+    const own = o.id === S.pid, on = my === o.id, truth = judge && o.id==="real";
+    return `<li><button type="button" class="opt${on ? " on" : ""}${own ? " own" : ""}${truth ? " truth" : ""}" data-opt="${esc(o.id)}" ${own || judge ? "disabled" : ""} aria-pressed="${on}">
+      <span class="onum">${toAr(i+1)}</span><span class="otxt">${esc(o.text)}</span>${own ? `<span class="olabel">كذبتك 🤫</span>` : ""}${truth ? `<span class="olabel ok">الصحيح ✓</span>` : ""}${on ? `<span class="ostamp">اخترته</span>` : ""}</button></li>`;
   }).join("");
-  $("voteNote").textContent = judge ? "" : my ? "صوتك وصل ✓ تقدر تغيّره لين ينكشف الجواب." : "اختر المعنى اللي تشوفه صحيح.";
+  $("voteNote").textContent = judge ? "" : my ? "صوتك وصل ✓ تقدر تغيّره لين ينكشف الجواب." : "اضغط على المعنى اللي تشوفه صحيح. ما تقدر تختار كذبتك.";
+  $("voteNote").classList.toggle("sent", !!my && !judge);
   $("hostRevealCtl").hidden = !isHost();
   const act = activePlayers(), v = S.votes || {};
   statusGrid("vStatus", "vCount", act, v, "صوّت ✓", "يفكّر…");
@@ -1394,7 +1427,7 @@ function renderTV(){
     if(main.dataset.k !== key){
       main.dataset.k = key;
       main.innerHTML = `<div class="tvpanel grow tvq">${tvRing()}
-        <div class="tvqword"><span class="tvstamp">${intro ? "استعدوا…" : esc(tagText(w.t))}</span><div class="wordcard tvword">${intro ? "…" : esc(w.w)}</div>
+        <div class="tvqword"><span class="tvstamp">${intro ? "استعدوا…" : esc(tagText(w))}</span><div class="wordcard tvword">${intro ? "…" : esc(w.w)}</div>
         <p class="tvsub">${intro ? "" : "وش ظنكم معناها؟ اكتبوا معنى غلط ✍️"}</p></div><div id="tvWho"></div></div>`;
     }
     $("tvWho").innerHTML = whoRow(S.fakes||{}, "مين كتب؟");
@@ -1424,7 +1457,7 @@ function renderTV(){
   else if(phase==="final"){
     const list = standings();
     main.dataset.k = "final:"+m.round;
-    main.innerHTML = `<div class="tvpanel grow" style="justify-content:flex-end"><div class="tvbanner" style="padding:0">${list[0] ? `مبروك ${esc(list[0].name)}! 🎉` : ""}</div><div class="podium">${podiumHTML(list, true)}</div></div>`;
+    main.innerHTML = `<div class="tvpanel grow" style="justify-content:flex-end"><div class="tvbanner" style="padding:0">${winners(list).length ? `مبروك ${esc(namesAnd(winners(list)))}! 🎉` : ""}</div><div class="podium">${podiumHTML(list, true)}</div></div>`;
     side.innerHTML = `<div class="tvtitle">الترتيب النهائي</div><ol class="board tvboard">${boardHTML(list.slice(0,7),true)}</ol>`; growBars(side);
   }
 }
