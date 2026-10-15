@@ -289,6 +289,8 @@ body.tv .stopbar .lt{font-size:3.4em}
 .letter,.stopbar .lt,.tvletter,.tile{font-family:"Noto Kufi Arabic","Almarai",Tahoma,sans-serif;font-weight:800}
 .letter:not(.back){font-size:4.4rem}
 
+.gameswitch{display:block;text-align:center;font-weight:800;color:var(--ink);background:var(--card);border:var(--line);border-radius:14px;padding:10px;box-shadow:3px 3px 0 var(--ink);text-decoration:none}
+
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
 </style>
 </head>
@@ -329,6 +331,7 @@ body.tv .stopbar .lt{font-size:3.4em}
       <button id="tvBtn" class="flat" type="button">📺 افتح شاشة العرض لغرفة موجودة</button>
     </div>
     <p class="err" id="homeErr" role="alert"></p>
+    <a class="gameswitch" href="mana.html">🤥 جرّب لعبتنا الثانية «وش معناها؟»</a>
   </section>
 
   <!-- LOBBY -->
@@ -891,6 +894,7 @@ async function enter(code, asHost){
       if(code.length<4){ $("homeErr").textContent = "اكتب كود الغرفة (٤ خانات)."; return; }
       const m = await db.get(`rooms/${code}/meta`);
       if(!m){ $("homeErr").textContent = "ما لقينا غرفة بهالكود. تأكد منه."; return; }
+      if(m.game === "mana"){ $("homeErr").innerHTML = 'هذا الكود لغرفة «وش معناها؟». <a href="mana.html?room='+code+'">افتحها هناك</a>'; return; }
     }
     S.code = code; S.name = name;
     S.pid = store.get("kz_pid_"+code) || rid();
