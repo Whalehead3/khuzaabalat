@@ -467,6 +467,29 @@ body.tv{background-image:repeating-linear-gradient(180deg,transparent 0 47px,var
 .tvrace .track{border-width:2px;background:var(--table)}
 .tvrace li.full b{color:var(--red)}
 .ppl{padding-top:12px}
+
+/* TV question page: one wide sheet, word in the middle, small timer in the corner */
+.tvgrid.solo{grid-template-columns:1fr}
+.tvq{position:relative;justify-content:space-between;padding:3vh 4vw}
+.tvq .tvring{position:absolute;top:2.4vh;left:2vw;width:min(14vh,9vw);height:min(14vh,9vw)}
+.tvq .tvring .t{font-size:1.5em}
+.tvqword{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1.5vh;text-align:center}
+.tvqword.sm{flex:none}
+.tvq .tvword{font-size:min(22vh,13vw);line-height:1.3}
+.tvq .tvword.sm{font-size:min(11vh,7vw)}
+.tvstamp{border:3px solid var(--red);color:var(--red);border-radius:8px;padding:.1em .8em;transform:rotate(-4deg);font-weight:900;font-size:1.3em}
+.tvsub{margin:0;font-family:var(--display);font-size:1.7em;color:var(--ink-2)}
+.tvq .tvopts{max-width:70vw;width:100%;margin:2vh auto 0}
+.tvwho{border-top:2px dashed var(--rule);padding-top:1.6vh;display:flex;flex-direction:column;gap:1.2vh;align-items:center}
+.tvwhohead{font-family:var(--display);font-size:1.4em}
+.tvwhohead span{color:var(--red);font-family:var(--body);font-weight:800;margin-inline-start:.4em}
+.tvwhorow{display:flex;flex-wrap:wrap;justify-content:center;gap:1.4vh 1.6vw}
+.tvwhorow .st .av{--s:5.6vh}
+.tvwhorow .st .nm{font-size:.85em}
+.tvq{justify-content:center;gap:3vh}
+.tvqword{flex:none}
+.tvwho{border-top:0;padding-top:0}
+.tvq .tvopts{margin-top:0}
 </style>
 </head>
 <body>
@@ -1363,6 +1386,12 @@ function renderTV(){
   $("tvRound").textContent = phase==="final" ? "النتيجة النهائية 🏆" : m.round ? roundLabel(m) : "";
   const main = $("tvMain"), side = $("tvSide");
   const players = Object.entries(S.players).sort((a,b)=>(a[1].joined||0)-(b[1].joined||0));
+  /* write & vote use the full width: no side panel */
+  const solo = phase==="write" || phase==="vote";
+  side.parentElement.hidden = solo;
+  side.closest(".tvgrid").classList.toggle("solo", solo);
+  const whoRow = (map, label) => { const act = activePlayers(), done = act.filter(pid => map[pid]).length;
+    return `<div class="tvwho"><div class="tvwhohead">${label} <span>${toAr(done)} من ${toAr(act.length)}</span></div><div class="tvwhorow">${act.map(pid => `<div class="st ${map[pid] ? "done" : "wait"}">${avatar(pid,pname(pid))}<span class="nm">${esc(pname(pid))}</span></div>`).join("")}</div></div>`; };
   const statusList = (map, label) => `<div class="tvtitle">${label}</div><ol class="tvrace">${activePlayers().map(pid => `<li class="${map[pid] ? "full" : ""}">${avatar(pid,pname(pid))}<span class="track"><i style="--c:${colorOf(pid)};width:${map[pid] ? 100 : 0}%"></i><span>${esc(pname(pid))}</span></span><b>${map[pid] ? "✓" : "…"}</b></li>`).join("")}</ol>`;
   if(phase==="lobby"){
     const link = roomLink(S.code);
@@ -1383,19 +1412,21 @@ function renderTV(){
     const intro = S.db.now() < m.startAt, key = "write:"+m.round+":"+intro;
     if(main.dataset.k !== key){
       main.dataset.k = key;
-      main.innerHTML = `<div class="tvpanel grow"><div class="tvplayrow"><div class="wordcard tvword">${intro ? "…" : esc(w.w)}</div>${tvRing()}</div>
-        <div class="tvbanner" style="padding:0">${intro ? "استعدوا…" : "اكتبوا معنى مزيّف يقنع الباقين ✍️"}</div><p class="muted" style="text-align:center;font-weight:800;font-size:1.2em">${intro ? "" : tagText(w.t)}</p></div>`;
+      main.innerHTML = `<div class="tvpanel grow tvq">${tvRing()}
+        <div class="tvqword"><span class="tvstamp">${intro ? "استعدوا…" : esc(tagText(w.t))}</span><div class="wordcard tvword">${intro ? "…" : esc(w.w)}</div>
+        <p class="tvsub">${intro ? "" : "اكتبوا معنى مزيّف يقنع الباقين ✍️"}</p></div><div id="tvWho"></div></div>`;
     }
-    side.innerHTML = statusList(S.fakes||{}, "مين كتب؟");
+    $("tvWho").innerHTML = whoRow(S.fakes||{}, "مين كتب؟");
   }
   else if(phase==="vote"){
     const opts = options(), key = "vote:"+m.round+":"+opts.map(o=>o.id).join(",");
     if(main.dataset.k !== key){
       main.dataset.k = key;
-      main.innerHTML = `<div class="tvpanel grow"><div class="tvplayrow" style="flex:none"><div class="wordcard tvword sm">${esc(w.w)}</div>${tvRing()}</div>
-        <ol class="tvopts">${opts.map((o,i) => `<li><span class="num">${i+1}</span>${esc(o.text)}</li>`).join("")}</ol></div>`;
+      main.innerHTML = `<div class="tvpanel grow tvq">${tvRing()}
+        <div class="tvqword sm"><div class="wordcard tvword sm">${esc(w.w)}</div></div>
+        <ol class="tvopts">${opts.map((o,i) => `<li><span class="num">${toAr(i+1)}</span>${esc(o.text)}</li>`).join("")}</ol><div id="tvWho"></div></div>`;
     }
-    side.innerHTML = statusList(S.votes||{}, "مين صوّت؟");
+    $("tvWho").innerHTML = whoRow(S.votes||{}, "مين صوّت؟");
   }
   else if(phase==="reveal"){
     const { pts, fooled, right } = computeRound(), f = S.fakes || {}, hid = S.hidden || {};
