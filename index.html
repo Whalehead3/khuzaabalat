@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>يبدأ بحرف الـ؟</title>
-<meta name="description" content="العبوا يبدأ بحرف الـ؟ أونلاين مع أصحابكم: حرف واحد، عشرة أسئلة، وأول واحد يخلص يقول خلصت.">
+<meta name="description" content="العبوا يبدأ بحرف الـ؟ أونلاين مع أصحابكم: حرف واحد، ١٠ أسئلة أو ٥، وأول واحد يخلص يقول خلصت.">
 <meta property="og:title" content="يبدأ بحرف الـ؟">
 <meta property="og:description" content="ادخل الغرفة والعب معنا!">
 <meta name="theme-color" content="#FFD23F">
@@ -308,7 +308,7 @@ body.tv .stopbar .lt{font-size:3.4em}
     <div class="hero">
       <div class="tiles" aria-hidden="true"><span class="tile">ب</span><span class="tile">ح</span><span class="tile">خ</span><span class="tile">ع</span></div>
       <h1><span class="w w1">يبدأ</span> <span class="w w2">بحرف</span><br><span class="w w3">الـ؟</span></h1>
-      <p class="muted" style="max-width:34ch;font-weight:600">حرف واحد، عشرة أسئلة. أول واحد يعبّي كل الخانات يقول <b>خلصت</b> وتوقف الجولة عند الكل.</p>
+      <p class="muted" style="max-width:34ch;font-weight:600">حرف واحد، ١٠ أسئلة أو ٥. أول واحد يعبّي كل الخانات يقول <b>خلصت</b> وتوقف الجولة عند الكل.</p>
     </div>
     <div class="card">
       <div class="field">
@@ -401,6 +401,13 @@ body.tv .stopbar .lt{font-size:3.4em}
           <button type="button" data-l="easy">سهلة</button>
           <button type="button" data-l="random">عشوائية 🎲</button>
           <button type="button" data-l="hard">صعبة 🔥</button>
+        </div>
+      </div>
+      <div class="field">
+        <span id="qLbl" style="font-size:.9rem;font-weight:700">عدد الأسئلة</span>
+        <div class="seg" id="qSeg" role="group" aria-labelledby="qLbl">
+          <button type="button" data-q="5">٥ أسئلة</button>
+          <button type="button" data-q="10">١٠ أسئلة</button>
         </div>
       </div>
       <button id="startBtn" class="big pink" type="button">ابدأ الجولة</button>
@@ -515,7 +522,7 @@ const LEVELS = { easy:[6,4,0], hard:[0,0,10] };
 function pickPrompts(letter, level){
   if(!LEVELS[level]){
     /* random (default): 6 tricky questions + 4 from the classic/general pool, all matched to the letter */
-    const tricky = shuffle(FUN.filter(f => fits(f,letter)).map(f => f.q)).slice(0,6);
+    const tricky = shuffle(FUN.filter(f => fits(f,letter)).map(f => f.q)).slice(0, Math.round(Q*0.6));
     const plain = shuffle([...CORE, ...EXTRA]).slice(0, Q - tricky.length);
     return shuffle([...tricky, ...plain]);
   }
@@ -526,7 +533,9 @@ function pickPrompts(letter, level){
 }
 const MAX_ROUNDS_DEFAULT = 3;
 const maxRounds = m => (m && m.maxRounds) || MAX_ROUNDS_DEFAULT;
-const Q = 10;
+/* questions per round: 10 (default) or 5, chosen by the host; during a round it follows that round's questions */
+const qCountOf = m => (m && m.qcount === 5) ? 5 : 10;
+let Q = 10;
 const AV_COLORS = ["#FF3E8A","#2F6BFF","#19C98E","#FF8A1F","#A66BFF","#00C2D1","#F0384F","#9BD80F","#FFB000","#FF6FCF","#4FA3FF","#7AE0B8"];
 const QS = new URLSearchParams(location.search);
 const DEMO = QS.has("demo");
@@ -955,6 +964,7 @@ async function leave(){
 function onMeta(){
   const m = S.meta;
   if(!m){ show("home"); $("homeErr").textContent = "الغرفة انحذفت."; return; }
+  Q = (Array.isArray(m.prompts) && m.prompts.length) || qCountOf(m);
   const r = m.round || 0;
   if(r===0 && (S.builtRound || S.tv)){ S.celebrated = {}; S.builtRound = 0; S.myRound = 0; S.flushedRound = 0; if($("tvMain")) $("tvMain").dataset.k = ""; }
   if(r !== S.subRound){
@@ -1022,6 +1032,7 @@ function renderLobby(){
   $$("#durSeg button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.d===d)));
   const lv = LEVELS[m.level] ? m.level : "random";
   $$("#levelSeg button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.l===lv)));
+  $$("#qSeg button").forEach(b => b.setAttribute("aria-pressed", String(+b.dataset.q===qCountOf(m))));
   $$("#roleSeg button").forEach(b => b.setAttribute("aria-pressed", String((b.dataset.r==="play") === hostPlays(m))));
   const mr = String(maxRounds(m));
   $$("#roundsSeg button").forEach(b => { b.setAttribute("aria-pressed", String(b.dataset.n===mr)); b.disabled = (m.round||0) > 0 && b.dataset.n!==mr; });
@@ -1035,6 +1046,10 @@ $("ppl").addEventListener("click", e => {
 $("levelSeg").addEventListener("click", e => {
   const b = e.target.closest("[data-l]"); if(!b || !isHost()) return;
   S.db.update(`${base()}/meta`, { level:b.dataset.l });
+});
+$("qSeg").addEventListener("click", e => {
+  const b = e.target.closest("[data-q]"); if(!b || !isHost()) return;
+  S.db.update(`${base()}/meta`, { qcount:+b.dataset.q });
 });
 $("roleSeg").addEventListener("click", e => {
   const b = e.target.closest("[data-r]"); if(!b || !isHost()) return;
@@ -1064,6 +1079,7 @@ $("startBtn").addEventListener("click", async () => {
     if(!pool.length){ pool = LETTERS.slice(); used = {}; }
     const letter = pool[rnd(pool.length)];
     used[letter] = true;
+    Q = qCountOf(m);
     const prompts = pickPrompts(letter, m.level || "random");
     const dur = m.duration || 90;
     const now = S.db.now();
@@ -1361,7 +1377,7 @@ function renderTV(){
       bottom.innerHTML = `<div class="tvtitle">الترتيب 🏆</div><ol class="board tvboard">${boardHTML(standings().slice(0,5),true)}</ol>`;
       growBars(bottom);
     }else{
-      bottom.innerHTML = `<div class="tvbanner">بانتظار المضيف يبدأ… 🎲</div><p style="text-align:center;font-weight:700;font-size:1.2em" class="muted">حرف واحد، عشرة أسئلة.<br>أول واحد يعبّي كل الخانات يقول خلصت وتوقف الجولة عند الكل.</p>`;
+      bottom.innerHTML = `<div class="tvbanner">بانتظار المضيف يبدأ… 🎲</div><p style="text-align:center;font-weight:700;font-size:1.2em" class="muted">حرف واحد، ١٠ أسئلة أو ٥.<br>أول واحد يعبّي كل الخانات يقول خلصت وتوقف الجولة عند الكل.</p>`;
     }
     const online = players.filter(([,p])=>p.online).length;
     side.innerHTML = `<div class="tvhead"><div class="tvtitle">اللاعبين</div><span class="tvtitle" style="font-size:1.8em">${online}</span></div>

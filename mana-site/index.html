@@ -780,7 +780,9 @@ body.tv .tag,body.tv .crownlbl,body.tv .who-row .lbl,body.tv .lie .fooled,body.t
 <script type="module">
 const MAX_ROUNDS_DEFAULT = 3;
 const maxRounds = m => (m && m.maxRounds) || MAX_ROUNDS_DEFAULT;
-const Q = 10; /* (unused here) */
+/* questions per round: 10 (default) or 5, chosen by the host; during a round it follows that round's questions */
+const qCountOf = m => (m && m.qcount === 5) ? 5 : 10;
+let Q = 10; /* (unused here) */
 const AV_COLORS = ["#FF3E8A","#2F6BFF","#19C98E","#FF8A1F","#A66BFF","#00C2D1","#F0384F","#9BD80F","#FFB000","#FF6FCF","#4FA3FF","#7AE0B8"];
 const QS = new URLSearchParams(location.search);
 const DEMO = QS.has("demo");
@@ -1094,6 +1096,7 @@ function renderLobby(){
   $("startBtn").textContent = !m.round ? `ابدأ الجولة الأولى من ${maxRounds(m)} 🎲` : last ? "ابدأ الجولة الأخيرة 🔥" : `ابدأ الجولة ${m.round+1} من ${maxRounds(m)} 🎲`;
   const d = String(m.duration || 60);
   $$("#durSeg button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.d===d)));
+  $$("#qSeg button").forEach(b => b.setAttribute("aria-pressed", String(+b.dataset.q===qCountOf(m))));
   $$("#roleSeg button").forEach(b => b.setAttribute("aria-pressed", String((b.dataset.r==="play") === hostPlays(m))));
   const mr = String(maxRounds(m));
   $$("#roundsSeg button").forEach(b => { b.setAttribute("aria-pressed", String(b.dataset.n===mr)); b.disabled = (m.round||0) > 0 && b.dataset.n!==mr; });
