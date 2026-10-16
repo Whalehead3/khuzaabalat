@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>من كيسك</title>
-<meta name="description" content="لعبة جماعية أونلاين: كلمة غريبة، الكل يكتب معنى مزيّف، وبعدين تصوّتون على المعنى الصحيح.">
+<meta name="description" content="لعبة جماعية أونلاين: تطلع لكم كلمة عربية، كل واحد يألّف لها معنى ويحاول يخدع خصمه، وبعدين تختارون المعنى الصحيح.">
 <meta property="og:title" content="من كيسك">
 <meta property="og:description" content="ادخل الغرفة والعب معنا!">
 <meta name="theme-color" content="#FFD23F">
@@ -571,8 +571,8 @@ body.tv .tag,body.tv .crownlbl,body.tv .who-row .lbl,body.tv .lie .fooled,body.t
       <h1>من كيسك</h1>
     </div>
     <ol class="def">
-      <li><b>١.</b><span>كلمة غريبة تطلع لكم، وكل واحد يكتب لها <u>معنى مزيّف</u>.</span></li>
-      <li><b>٢.</b><span>تصوّتون على المعنى الصحيح… واللي ينخدع بكذبتك تاخذ عليه نقاط.</span></li>
+      <li><b>١.</b><span>تطلع لكم كلمة عربية، ألّف لها معنى وحاول تخدع خصمك.</span></li>
+      <li><b>٢.</b><span>اختر المعنى الصحيح من بين الإجابات، وكل ما أحد صدّق كذبتك تاخذ نقاط.</span></li>
     </ol>
     <div class="card">
       <div class="field">
@@ -1499,7 +1499,7 @@ function renderTV(){
     }
     const bottom = $("tvLobbyBottom");
     if(Object.keys(S.results||{}).length){ bottom.innerHTML = `<div class="tvtitle">الترتيب 🏆</div><ol class="board tvboard">${boardHTML(standings().slice(0,5),true)}</ol>`; growBars(bottom); }
-    else bottom.innerHTML = `<div class="tvbanner">بانتظار المضيف يبدأ… 🎲</div><p style="text-align:center;font-weight:700;font-size:1.2em" class="muted">كلمة غريبة، وكل واحد يكتب لها معنى مزيّف.<br>بعدين تصوّتون على المعنى الصحيح: +١٠ لو عرفته، و+٥ عن كل واحد يصدّق كذبتك.</p>`;
+    else bottom.innerHTML = `<div class="tvbanner">بانتظار المضيف يبدأ… 🎲</div><p style="text-align:center;font-weight:700;font-size:1.2em" class="muted">تطلع لكم كلمة عربية، ألّف لها معنى وحاول تخدع خصمك.<br>اختر المعنى الصحيح: ١٠ نقاط لو عرفته، و٥ عن كل واحد يصدّق كذبتك.</p>`;
     const online = players.filter(([,p])=>p.online).length;
     side.innerHTML = `<div class="tvhead"><div class="tvtitle">اللاعبين</div><span class="tvtitle" style="font-size:1.8em">${online}</span></div>
       <div class="tvppl">${players.map(([pid,p]) => `<div class="pp">${avatar(pid,p.name,{off:!p.online, crown:pid===m.host})}<span class="nm">${esc(p.name)}</span></div>`).join("") || '<p class="muted" style="font-weight:700">ما أحد دخل للحين.</p>'}</div>`;
