@@ -291,6 +291,13 @@ body.tv .stopbar .lt{font-size:3.4em}
 .letter:not(.back){font-size:4.4rem}
 
 .gameswitch{display:block;text-align:center;font-weight:800;color:var(--ink);background:var(--card);border:var(--line);border-radius:14px;padding:10px;box-shadow:3px 3px 0 var(--ink);text-decoration:none}
+.awards{display:grid;gap:10px;width:100%}
+.aw{display:flex;align-items:center;gap:12px;background:var(--soft);border:var(--line);border-radius:14px;padding:10px 14px;box-shadow:2px 2px 0 var(--ink)}
+.aw-ico{font-size:1.9rem;line-height:1;flex:none}
+.aw-body{display:flex;flex-direction:column;min-width:0}
+.aw-t{font-size:.85rem;font-weight:800;color:var(--ink-2)}
+.aw-body b{font-size:1.1rem;overflow-wrap:anywhere}
+.aw-v{font-size:.9rem;font-weight:700;color:var(--ink-2)}
 
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
 </style>
@@ -472,6 +479,7 @@ body.tv .stopbar .lt{font-size:3.4em}
     <div style="text-align:center"><h1 style="font-size:2.6rem">النتيجة النهائية 🏆</h1><p class="muted" id="finalSub" style="font-weight:700"></p></div>
     <div class="podium" id="podium"></div>
     <ol id="finalBoard" class="board"></ol>
+    <div id="awards" class="awards" hidden></div>
     <button id="newGameBtn" class="big pink" type="button" hidden>لعبة جديدة 🎲</button>
     <div id="finalWait" class="card" hidden style="text-align:center;font-weight:800">انتهت اللعبة! المضيف يقدر يبدأ لعبة جديدة.</div>
     <button id="leaveBtn2" class="flat" type="button">اطلع من الغرفة</button>
@@ -803,7 +811,7 @@ function demoAdapter(){
 /* ---------- state ---------- */
 const S = {
   db:null, code:null, pid:null, name:"", tv:false,
-  meta:null, players:{}, progress:{}, results:{}, answers:{}, rejects:{}, stars:{}, flags:{}, adjust:{},
+  meta:null, players:{}, progress:{}, results:{}, stats:{}, answers:{}, rejects:{}, stars:{}, flags:{}, adjust:{},
   unsubs:[], roundUnsubs:[], subRound:-1,
   my:Array(Q).fill(""), myRound:0, builtRound:0, revealed:false, stopTried:false, flushedRound:0, lastN:-1, saveT:null,
   detail:null, lastPhase:null, lastCount:null, lastTickSec:null, knownPlayers:null, celebrated:{}, tvSpot:0, tvRevealed:false
@@ -942,6 +950,7 @@ function subscribe(){
   S.unsubs.push(db.on(b+"/players", p => { S.players = p || {}; onPlayers(); }));
   S.unsubs.push(db.on(b+"/progress", p => { S.progress = p || {}; renderRace(); if(S.tv) renderTV(); }));
   S.unsubs.push(db.on(b+"/results", r => { S.results = r || {}; renderLobby(); if(S.meta && S.meta.phase==="final") renderFinal(); if(S.tv) renderTV(); }));
+  S.unsubs.push(db.on(b+"/stats", s => { S.stats = s || {}; if(S.meta && S.meta.phase==="final") renderFinal(); }));
 }
 function onPlayers(){
   const ids = Object.keys(S.players);
@@ -1297,7 +1306,7 @@ $("newGameBtn").addEventListener("click", async () => {
   if(!isHost()) return;
   $("newGameBtn").disabled = true;
   try{
-    await Promise.all(["results","answers","rejects","progress","stars","flags","adjust"].map(k => S.db.remove(`${base()}/${k}`)));
+    await Promise.all(["results","stats","answers","rejects","progress","stars","flags","adjust"].map(k => S.db.remove(`${base()}/${k}`)));
     await S.db.update(`${base()}/meta`, { phase:"lobby", round:0, used:null, stoppedBy:null, stopReason:null });
     S.celebrated = {}; S.builtRound = 0; S.myRound = 0; S.flushedRound = 0;
   } finally { $("newGameBtn").disabled = false; }
@@ -1307,7 +1316,14 @@ $("commitBtn").addEventListener("click", async () => {
   if(!isHost()) return;
   $("commitBtn").disabled = true;
   try{
-    const { pts } = computeRound();
+    const { pts, detail } = computeRound();
+    /* per-round tallies for the end-of-game awards */
+    const stats = { creative:{}, unique:{} };
+    for(const qd of detail) for(const [pid, d] of Object.entries(qd)){
+      if(d.creative) stats.creative[pid] = (stats.creative[pid]||0) + 1;
+      if(d.ok && !d.dup) stats.unique[pid] = (stats.unique[pid]||0) + 1;
+    }
+    await S.db.set(`${base()}/stats/r${S.meta.round}`, stats);
     await S.db.set(`${base()}/results/r${S.meta.round}`, pts);
     await S.db.update(`${base()}/meta`, { phase: S.meta.round >= maxRounds(S.meta) ? "final" : "lobby" });
   } finally { $("commitBtn").disabled = false; }
@@ -1336,6 +1352,23 @@ function renderFinal(){
   $("finalBoard").innerHTML = boardHTML(list); growBars($("finalBoard"));
   $("newGameBtn").hidden = !isHost();
   $("finalWait").hidden = isHost();
+  awardCards();
+}
+/* end-of-game awards: the top player in each category (ties share it). Each game fills only the tallies it keeps. */
+function awardCards(){
+  const sum = key => { const t = {}; for(const st of Object.values(S.stats||{})) for(const [pid, n] of Object.entries((st && st[key]) || {})) t[pid] = (t[pid]||0) + (+n||0); return t; };
+  const bestRound = {};
+  for(const v of Object.values(S.results||{})) if(v) for(const [pid, p] of Object.entries(v)) bestRound[pid] = Math.max(bestRound[pid]||0, +p||0);
+  const best = t => { const v = Math.max(0, ...Object.values(t)); return v ? { v, pids: Object.keys(t).filter(p => t[p]===v) } : null; };
+  const cards = [
+    ["🎨", "أكثر إجابة مبدعة", best(sum("creative")), n => `${n} إجابات مبدعة`],
+    ["🎯", "أكثر إجابات ما كررها أحد", best(sum("unique")), n => `${n} إجابات فريدة`],
+    ["🤥", "أكذب واحد", best(sum("fooled")), n => `خدع ${n} شخص بكذباته`],
+    ["🧠", "أذكى واحد", best(sum("right")), n => `عرف المعنى الصحيح ${n} مرة`],
+    ["⚡", "أعلى جولة", best(bestRound), n => `${n} نقطة في جولة واحدة`],
+  ].filter(c => c[2]);
+  $("awards").innerHTML = cards.map(([ico, t, b, f]) => `<div class="aw"><span class="aw-ico" aria-hidden="true">${ico}</span><div class="aw-body"><span class="aw-t">${t}</span><b>${b.pids.map(p => esc(pname(p))).join(" و")}</b><span class="aw-v">${f(b.v)}</span></div></div>`).join("");
+  $("awards").hidden = !cards.length;
 }
 
 /* ================= TV view ================= */
