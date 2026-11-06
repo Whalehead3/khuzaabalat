@@ -1,7 +1,13 @@
 /* Private site: everyone enters the access code once per device (remembered in this browser).
    Note: this is a simple lock for a static site — it keeps casual visitors out, not a determined one. */
 (function(){
-  var KEY = "site_ok_v1", HASH = "6b5f40c09215713a1fa83ea2de2adcae17e605b8958a2d7379e15b561687ee8f";
+  var KEY = "site_ok_v1";
+  /* one code per site (SHA-256 of the lowercase code). Stored unlocks only match the current hash, so changing a code locks everyone out again. */
+  var HASHES = {
+    "harfinsanhaywan.web.app": "7820a9e1a95d0631f44cbb2880833821d66476c29599973747659002a450a9fc", "harfinsanhaywan.firebaseapp.com": "7820a9e1a95d0631f44cbb2880833821d66476c29599973747659002a450a9fc",
+    "qamoos-alkathabeen.web.app": "08263a45212d8977bd952ceb98012b42a60fc9d5c42e3e0e7e1c76f904c521d4", "qamoos-alkathabeen.firebaseapp.com": "08263a45212d8977bd952ceb98012b42a60fc9d5c42e3e0e7e1c76f904c521d4"
+  };
+  var HASH = HASHES[location.hostname] || ""; /* unknown host: stays locked */
   try { if(localStorage.getItem(KEY) === HASH) return; } catch(e){}
   var root = document.documentElement; root.classList.add("locked");
   var css = document.createElement("style");
@@ -17,13 +23,13 @@
   function build(){
     var g = document.createElement("div"); g.id = "gate";
     g.innerHTML = '<form autocomplete="off"><div class="ic">🔒</div><h1>الموقع خاص</h1><p>اكتب الرمز عشان تدخل</p>' +
-      '<input id="gateCode" inputmode="numeric" maxlength="8" aria-label="الرمز" autofocus><button type="submit">ادخل</button><div class="err" role="alert"></div></form>';
+      '<input id="gateCode" inputmode="text" maxlength="16" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="الرمز" autofocus><button type="submit">ادخل</button><div class="err" role="alert"></div></form>';
     document.body.appendChild(g);
     var f = g.querySelector("form"), inp = g.querySelector("input"), err = g.querySelector(".err");
     inp.focus();
     f.addEventListener("submit", async function(e){
       e.preventDefault();
-      var v = inp.value.trim().replace(/[٠-٩]/g, function(d){ return "٠١٢٣٤٥٦٧٨٩".indexOf(d); });
+      var v = inp.value.trim().toLowerCase().replace(/[٠-٩]/g, function(d){ return "٠١٢٣٤٥٦٧٨٩".indexOf(d); });
       if(await sha(v) === HASH){ try { localStorage.setItem(KEY, HASH); } catch(e){} g.remove(); root.classList.remove("locked"); }
       else { err.textContent = "الرمز غلط، جرّب مرة ثانية"; inp.select(); }
     });
