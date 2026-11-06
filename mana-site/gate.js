@@ -4,8 +4,8 @@
   var KEY = "site_ok_v1";
   /* one code per site (SHA-256 of the lowercase code). Stored unlocks only match the current hash, so changing a code locks everyone out again. */
   var HASHES = {
-    "harfinsanhaywan.web.app": "7820a9e1a95d0631f44cbb2880833821d66476c29599973747659002a450a9fc", "harfinsanhaywan.firebaseapp.com": "7820a9e1a95d0631f44cbb2880833821d66476c29599973747659002a450a9fc",
-    "qamoos-alkathabeen.web.app": "08263a45212d8977bd952ceb98012b42a60fc9d5c42e3e0e7e1c76f904c521d4", "qamoos-alkathabeen.firebaseapp.com": "08263a45212d8977bd952ceb98012b42a60fc9d5c42e3e0e7e1c76f904c521d4"
+    "harfinsanhaywan.web.app": "66af39fcdb9b6f9d09130c98de837de5a5183da5ba5a74792b09439c7dea8aa5", "harfinsanhaywan.firebaseapp.com": "66af39fcdb9b6f9d09130c98de837de5a5183da5ba5a74792b09439c7dea8aa5",
+    "qamoos-alkathabeen.web.app": "66af39fcdb9b6f9d09130c98de837de5a5183da5ba5a74792b09439c7dea8aa5", "qamoos-alkathabeen.firebaseapp.com": "66af39fcdb9b6f9d09130c98de837de5a5183da5ba5a74792b09439c7dea8aa5"
   };
   var HASH = HASHES[location.hostname] || ""; /* unknown host: stays locked */
   try { if(localStorage.getItem(KEY) === HASH) return; } catch(e){}
